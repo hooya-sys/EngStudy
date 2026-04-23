@@ -794,6 +794,124 @@
     color: var(--navy-soft);
     margin-top: 12px;
   }
+
+  /* CUSTOM CATEGORY */
+  .cat-card.custom {
+    background: linear-gradient(180deg, white 55%, rgba(255, 140, 66, 0.18)) !important;
+    border-style: dashed;
+  }
+  .cat-card .cat-badge-add {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    font-family: 'Fredoka';
+    font-weight: 700;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--navy);
+    line-height: 1;
+  }
+
+  .custom-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+    background: var(--bg-soft);
+    border: 3px solid var(--navy);
+    border-radius: 16px;
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  .custom-input {
+    font-family: 'Quicksand', 'Gowun Dodum', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 2px solid var(--navy);
+    background: white;
+    color: var(--navy);
+    outline: none;
+    min-width: 0;
+    width: 100%;
+  }
+  .custom-input:focus { box-shadow: 0 3px 0 var(--navy); }
+  .custom-form .btn { padding: 10px 14px; font-size: 14px; }
+  @media (max-width: 520px) {
+    .custom-form { grid-template-columns: 1fr 1fr; }
+    .custom-form .btn { grid-column: 1 / -1; }
+  }
+
+  .custom-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .custom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    background: white;
+    border: 2px solid var(--navy);
+    border-radius: 14px;
+    padding: 10px 14px;
+    box-shadow: 0 3px 0 var(--navy);
+  }
+  .custom-row .custom-en {
+    font-family: 'Fredoka';
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--navy);
+    overflow-wrap: anywhere;
+  }
+  .custom-row .custom-ko {
+    font-family: 'Gowun Dodum';
+    font-size: 14px;
+    color: var(--navy-soft);
+    overflow-wrap: anywhere;
+  }
+  .custom-row .custom-speak,
+  .custom-row .custom-del {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 2px solid var(--navy);
+    background: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: var(--navy);
+    transition: all 0.15s;
+  }
+  .custom-row .custom-speak { background: var(--accent); color: white; }
+  .custom-row .custom-del { background: var(--pink); color: white; }
+  .custom-row .custom-speak:hover,
+  .custom-row .custom-del:hover { transform: translateY(-1px); box-shadow: 0 3px 0 var(--navy); }
+
+  .custom-empty {
+    text-align: center;
+    padding: 30px 20px;
+    background: var(--bg-soft);
+    border: 3px dashed var(--navy);
+    border-radius: 16px;
+    color: var(--navy-soft);
+    font-family: 'Gowun Dodum';
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+  .custom-empty .custom-empty-emoji { font-size: 44px; display: block; margin-bottom: 8px; }
 </style>
 </head>
 <body>
@@ -1057,6 +1175,11 @@ const VOCAB = {
       { en: 'win', ko: '이기다' },
       { en: 'team', ko: '팀' }
     ]
+  },
+  custom: {
+    name: 'My Words', nameKr: '내 단어장', emoji: '⭐', color: '#FF8C42',
+    isCustom: true,
+    words: []
   }
 };
 
@@ -1111,6 +1234,7 @@ async function loadState() {
   } catch (e) {
     // No saved state yet
   }
+  await loadCustomWords();
 }
 
 async function saveState() {
@@ -1127,6 +1251,28 @@ async function saveState() {
     await window.storage.set('english_adventure_state', JSON.stringify(toSave));
   } catch (e) {
     console.error('Save failed', e);
+  }
+}
+
+async function loadCustomWords() {
+  try {
+    const result = await window.storage.get('english_adventure_custom_words');
+    if (result && result.value) {
+      const loaded = JSON.parse(result.value);
+      if (Array.isArray(loaded)) {
+        VOCAB.custom.words = loaded.filter(w => w && typeof w.en === 'string' && typeof w.ko === 'string');
+      }
+    }
+  } catch (e) {
+    // No saved custom words yet
+  }
+}
+
+async function saveCustomWords() {
+  try {
+    await window.storage.set('english_adventure_custom_words', JSON.stringify(VOCAB.custom.words));
+  } catch (e) {
+    console.error('Save custom words failed', e);
   }
 }
 
@@ -1446,7 +1592,11 @@ function renderWelcome() {
 
 function renderHome() {
   const totalWords = CATEGORIES.reduce((sum, k) => sum + VOCAB[k].words.length, 0);
-  const totalMastered = CATEGORIES.reduce((sum, k) => sum + (state.mastered[k]?.length || 0), 0);
+  const totalMastered = CATEGORIES.reduce((sum, k) => {
+    const existing = new Set(VOCAB[k].words.map(w => w.en));
+    return sum + (state.mastered[k] || []).filter(en => existing.has(en)).length;
+  }, 0);
+  const totalPct = totalWords > 0 ? Math.round(totalMastered / totalWords * 100) : 0;
 
   return `
     ${renderHeader()}
@@ -1459,21 +1609,32 @@ function renderHome() {
           <div style="font-family: 'Fredoka'; font-weight: 600; font-size: 16px; color: var(--navy);">전체 진도</div>
           <div style="font-family: 'Gowun Dodum'; font-size: 13px; color: var(--navy-soft);">${totalMastered} / ${totalWords} 단어 마스터!</div>
         </div>
-        <div style="font-family: 'Fredoka'; font-size: 28px; font-weight: 700; color: var(--primary);">${Math.round(totalMastered/totalWords*100)}%</div>
+        <div style="font-family: 'Fredoka'; font-size: 28px; font-weight: 700; color: var(--primary);">${totalPct}%</div>
       </div>
 
       <div class="categories">
         ${CATEGORIES.map(key => {
           const cat = VOCAB[key];
-          const mastered = state.mastered[key]?.length || 0;
-          const pct = (mastered / cat.words.length) * 100;
+          const wordCount = cat.words.length;
+          const masteredList = state.mastered[key] || [];
+          const masteredSet = new Set(cat.words.map(w => w.en));
+          const mastered = masteredList.filter(en => masteredSet.has(en)).length;
+          const pct = wordCount > 0 ? (mastered / wordCount) * 100 : 0;
+          const isCustom = !!cat.isCustom;
+          const progressText = wordCount > 0
+            ? `${mastered}/${wordCount}`
+            : (isCustom ? '단어를 추가해봐!' : '0/0');
+          const cardStyle = isCustom
+            ? ''
+            : `style="background: linear-gradient(180deg, white 60%, ${cat.color}22);"`;
           return `
-            <div class="cat-card" style="background: linear-gradient(180deg, white 60%, ${cat.color}22);" onclick="selectCategory('${key}')">
+            <div class="cat-card${isCustom ? ' custom' : ''}" ${cardStyle} onclick="selectCategory('${key}')">
+              ${isCustom ? '<span class="cat-badge-add">+</span>' : ''}
               <span class="cat-emoji">${cat.emoji}</span>
               <div class="cat-name">${cat.name}</div>
               <div class="cat-name-kr">${cat.nameKr}</div>
               <div class="cat-progress"><div class="cat-progress-fill" style="width:${pct}%; background:${cat.color};"></div></div>
-              <div class="cat-progress-text">${mastered}/${cat.words.length}</div>
+              <div class="cat-progress-text">${progressText}</div>
             </div>
           `;
         }).join('')}
@@ -1484,11 +1645,14 @@ function renderHome() {
 
 function renderModeSelect() {
   const cat = VOCAB[state.currentCategory];
-  const mastered = state.mastered[state.currentCategory]?.length || 0;
+  const existing = new Set(cat.words.map(w => w.en));
+  const mastered = (state.mastered[state.currentCategory] || []).filter(en => existing.has(en)).length;
+  const backLabel = cat.isCustom ? '← 단어 관리로' : '← 돌아가기';
+  const backAction = cat.isCustom ? 'backToCustomManage()' : 'goHome()';
   return `
     ${renderHeader()}
     <div class="card">
-      <button class="btn btn-ghost btn-sm" onclick="goHome()">← 돌아가기</button>
+      <button class="btn btn-ghost btn-sm" onclick="${backAction}">${backLabel}</button>
       <div style="text-align:center; margin: 16px 0;">
         <div style="font-size: 60px;">${cat.emoji}</div>
         <div class="screen-title" style="color: ${cat.color};">${cat.name}</div>
@@ -1498,12 +1662,28 @@ function renderModeSelect() {
       <div class="modes">
         ${Object.keys(MODES).map(mk => {
           const m = MODES[mk];
+          const needsChoices = (mk === 'meaning' || mk === 'word');
+          const needsPairs = (mk === 'matching');
+          const disabled = (cat.words.length === 0)
+            || (needsChoices && cat.words.length < 4)
+            || (needsPairs && cat.words.length < 2);
+          const disabledStyle = disabled ? 'opacity:0.45; cursor:not-allowed;' : '';
+          const disabledHint = disabled
+            ? `<div style="font-size: 11px; color: var(--danger); font-family: 'Gowun Dodum'; margin-top: 2px;">${
+                cat.words.length === 0
+                  ? '단어가 필요해요'
+                  : needsChoices ? '4개 이상 단어 필요'
+                  : needsPairs ? '2개 이상 단어 필요' : ''
+              }</div>`
+            : '';
+          const onClick = disabled ? '' : `onclick="startMode('${mk}')"`;
           return `
-            <div class="mode-card" onclick="startMode('${mk}')">
+            <div class="mode-card" ${onClick} style="${disabledStyle}">
               <div class="mode-icon" style="background: ${m.color};">${m.emoji}</div>
               <div>
                 <div class="mode-title">${m.name}</div>
                 <div class="mode-desc">${m.desc}</div>
+                ${disabledHint}
               </div>
             </div>
           `;
@@ -1511,6 +1691,126 @@ function renderModeSelect() {
       </div>
     </div>
   `;
+}
+
+// ==========================================================
+// CUSTOM CATEGORY MANAGEMENT
+// ==========================================================
+function renderCustomManage() {
+  const cat = VOCAB.custom;
+  const words = cat.words;
+  const wordCount = words.length;
+  const hintMsg = wordCount === 0
+    ? '아래에 영어 단어와 뜻을 적어서 나만의 단어장을 만들어봐!'
+    : wordCount < 4
+      ? `💡 지금 ${wordCount}개! 퀴즈 게임은 4개 이상 추가하면 재미있게 할 수 있어요.`
+      : `👏 ${wordCount}개 단어! 이제 공부하러 가볼까?`;
+  return `
+    ${renderHeader()}
+    <div class="card">
+      <button class="btn btn-ghost btn-sm" onclick="goHome()">← 돌아가기</button>
+      <div style="text-align:center; margin: 16px 0 20px;">
+        <div style="font-size: 60px;">${cat.emoji}</div>
+        <div class="screen-title" style="color: ${cat.color};">${cat.nameKr}</div>
+        <div class="screen-sub">${hintMsg}</div>
+      </div>
+
+      <div class="custom-form" onsubmit="return false;">
+        <input type="text" class="custom-input" id="customEnInput" placeholder="English (예: apple)" maxlength="40" autocomplete="off" spellcheck="false">
+        <input type="text" class="custom-input" id="customKoInput" placeholder="뜻 (예: 사과)" maxlength="60" autocomplete="off">
+        <button class="btn btn-primary" onclick="addCustomWord()">+ 추가</button>
+      </div>
+
+      ${wordCount === 0 ? `
+        <div class="custom-empty">
+          <span class="custom-empty-emoji">📝</span>
+          아직 단어가 없어요.<br>위에서 단어를 추가해볼까?
+        </div>
+      ` : `
+        <div class="custom-list">
+          ${words.map((w, i) => `
+            <div class="custom-row">
+              <div class="custom-en">${escapeHtml(w.en)}</div>
+              <div class="custom-ko">${escapeHtml(w.ko)}</div>
+              <button class="custom-speak" onclick="speak('${escapeAttr(w.en)}')" title="듣기">🔊</button>
+              <button class="custom-del" onclick="deleteCustomWord(${i})" title="삭제">✕</button>
+            </div>
+          `).join('')}
+        </div>
+        <div style="text-align:center;">
+          <button class="btn btn-primary btn-lg" onclick="startCustomStudy()">🎮 공부하러 가기</button>
+        </div>
+      `}
+
+      <div class="help-text">💡 <b>꿀팁:</b> 학교에서 배운 단어나 헷갈리는 단어를 모아서 나만의 단어장으로 복습해봐!</div>
+    </div>
+  `;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+function escapeAttr(s) {
+  return String(s).replace(/['"\\]/g, '\\$&');
+}
+
+async function addCustomWord() {
+  const enEl = document.getElementById('customEnInput');
+  const koEl = document.getElementById('customKoInput');
+  if (!enEl || !koEl) return;
+  const sanitize = s => s.trim().replace(/[<>'"`\\]/g, '');
+  const en = sanitize(enEl.value);
+  const ko = sanitize(koEl.value);
+  if (!en || !ko) {
+    playSound('wrong');
+    if (!en) enEl.focus();
+    else koEl.focus();
+    return;
+  }
+  const dup = VOCAB.custom.words.find(w => w.en.toLowerCase() === en.toLowerCase());
+  if (dup) {
+    playSound('wrong');
+    alert(`"${en}" 단어는 이미 있어요! 😅`);
+    enEl.focus();
+    enEl.select();
+    return;
+  }
+  VOCAB.custom.words.push({ en, ko });
+  await saveCustomWords();
+  playSound('correct');
+  render();
+  setTimeout(() => {
+    const newEn = document.getElementById('customEnInput');
+    if (newEn) newEn.focus();
+  }, 0);
+}
+
+async function deleteCustomWord(i) {
+  if (i < 0 || i >= VOCAB.custom.words.length) return;
+  const removed = VOCAB.custom.words.splice(i, 1)[0];
+  if (removed && state.mastered.custom) {
+    state.mastered.custom = state.mastered.custom.filter(en => en !== removed.en);
+    await saveState();
+  }
+  await saveCustomWords();
+  playSound('click');
+  render();
+}
+
+function startCustomStudy() {
+  if (!VOCAB.custom.words.length) return;
+  state.screen = 'modeSelect';
+  playSound('category');
+  render();
+}
+
+function backToCustomManage() {
+  state.gameState = null;
+  state.screen = 'customManage';
+  playSound('back');
+  render();
 }
 
 // ==========================================================
@@ -2123,7 +2423,7 @@ async function startGame() {
 
 function selectCategory(key) {
   state.currentCategory = key;
-  state.screen = 'modeSelect';
+  state.screen = VOCAB[key]?.isCustom ? 'customManage' : 'modeSelect';
   playSound('category');
   render();
 }
@@ -2162,6 +2462,7 @@ function render() {
     case 'welcome': html = renderWelcome(); break;
     case 'home': html = renderHome(); break;
     case 'modeSelect': html = renderModeSelect(); break;
+    case 'customManage': html = renderCustomManage(); break;
     case 'flashcard': html = renderFlashcard(); break;
     case 'meaning': html = renderMeaningQuiz(); break;
     case 'word': html = renderWordQuiz(); break;
@@ -2180,6 +2481,20 @@ function render() {
   if (nameInput) {
     nameInput.focus();
     nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') startGame(); });
+  }
+
+  const customEn = document.getElementById('customEnInput');
+  const customKo = document.getElementById('customKoInput');
+  if (customEn && customKo) {
+    const onKey = e => {
+      if (e.key === 'Enter' && !e.isComposing) {
+        e.preventDefault();
+        if (e.target === customEn && !customKo.value.trim()) customKo.focus();
+        else addCustomWord();
+      }
+    };
+    customEn.addEventListener('keydown', onKey);
+    customKo.addEventListener('keydown', onKey);
   }
 }
 
