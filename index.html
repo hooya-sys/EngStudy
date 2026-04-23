@@ -1,0 +1,2196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>영어 단어 모험 🚀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Gowun+Dodum&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFF3DC;
+    --bg-soft: #FFFAEE;
+    --primary: #FF8C42;
+    --primary-dark: #E56B1F;
+    --accent: #2EC4B6;
+    --accent-dark: #1AA294;
+    --pink: #FF6F91;
+    --purple: #845EC2;
+    --yellow: #FFC857;
+    --navy: #2A3558;
+    --navy-soft: #4A5A85;
+    --success: #4CAF50;
+    --danger: #F44336;
+    --shadow: 0 6px 0 rgba(42, 53, 88, 0.15);
+    --shadow-deep: 0 10px 30px rgba(42, 53, 88, 0.15);
+    --radius: 20px;
+    --radius-sm: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: 'Quicksand', 'Gowun Dodum', sans-serif;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(46, 196, 182, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(255, 111, 145, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(255, 200, 87, 0.1) 0%, transparent 50%),
+      var(--bg);
+    color: var(--navy);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .app {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: white;
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    box-shadow: var(--shadow);
+    border: 3px solid var(--navy);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--yellow), var(--primary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    border: 3px solid var(--navy);
+    flex-shrink: 0;
+  }
+
+  .user-info { flex: 1; min-width: 140px; }
+  .user-name {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--navy);
+    line-height: 1.1;
+  }
+  .user-level {
+    font-size: 13px;
+    color: var(--navy-soft);
+    font-weight: 600;
+    font-family: 'Gowun Dodum';
+  }
+
+  .xp-container {
+    flex: 2;
+    min-width: 180px;
+  }
+  .xp-bar {
+    height: 14px;
+    background: #F0E4CC;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid var(--navy);
+    position: relative;
+  }
+  .xp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #5DD9CD);
+    width: 0%;
+    transition: width 0.8s cubic-bezier(.68,-0.55,.265,1.55);
+    border-radius: 8px 0 0 8px;
+  }
+  .xp-text {
+    font-size: 12px;
+    font-family: 'Fredoka';
+    font-weight: 600;
+    color: var(--navy-soft);
+    margin-top: 4px;
+  }
+
+  .streak {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #FFE5B4, var(--yellow));
+    padding: 8px 14px;
+    border-radius: 14px;
+    border: 2px solid var(--navy);
+    font-family: 'Fredoka';
+    font-weight: 600;
+  }
+
+  .sound-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid var(--navy);
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    box-shadow: 0 3px 0 var(--navy);
+    padding: 0;
+  }
+  .sound-toggle:hover { transform: translateY(-2px); box-shadow: 0 5px 0 var(--navy); }
+  .sound-toggle:active { transform: translateY(1px); box-shadow: 0 2px 0 var(--navy); }
+
+  /* CARD */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    box-shadow: var(--shadow-deep);
+    border: 3px solid var(--navy);
+    animation: cardIn 0.5s cubic-bezier(.68,-0.55,.265,1.55);
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .screen-title {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--navy);
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+  .screen-sub {
+    font-family: 'Gowun Dodum';
+    color: var(--navy-soft);
+    font-size: 15px;
+    margin-bottom: 20px;
+  }
+
+  /* BUTTONS */
+  .btn {
+    font-family: 'Fredoka', 'Gowun Dodum', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 14px 22px;
+    border-radius: 16px;
+    border: 3px solid var(--navy);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: white;
+    color: var(--navy);
+    box-shadow: 0 5px 0 var(--navy);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    user-select: none;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--navy); }
+  .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--navy); }
+
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-pink { background: var(--pink); color: white; }
+  .btn-purple { background: var(--purple); color: white; }
+  .btn-yellow { background: var(--yellow); color: var(--navy); }
+  .btn-ghost { background: transparent; box-shadow: none; border-color: transparent; }
+  .btn-ghost:hover { box-shadow: none; background: rgba(42, 53, 88, 0.08); }
+  .btn-sm { font-size: 14px; padding: 10px 16px; box-shadow: 0 4px 0 var(--navy); }
+  .btn-sm:active { box-shadow: 0 1px 0 var(--navy); }
+  .btn-lg { font-size: 20px; padding: 18px 30px; }
+
+  /* NAME INPUT */
+  .welcome {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .welcome-emoji {
+    font-size: 80px;
+    margin-bottom: 12px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  .welcome h1 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 8px;
+    text-shadow: 3px 3px 0 var(--navy);
+    letter-spacing: -1px;
+  }
+  .welcome p {
+    font-family: 'Gowun Dodum';
+    color: var(--navy-soft);
+    font-size: 17px;
+    margin-bottom: 24px;
+  }
+  .name-input {
+    width: 100%;
+    max-width: 300px;
+    padding: 14px 18px;
+    font-size: 18px;
+    font-family: 'Gowun Dodum';
+    border: 3px solid var(--navy);
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 4px 0 var(--navy);
+    outline: none;
+    transition: all 0.2s;
+  }
+  .name-input:focus { transform: translateY(-2px); box-shadow: 0 6px 0 var(--navy); }
+
+  /* CATEGORY GRID */
+  .categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .cat-card {
+    background: white;
+    border: 3px solid var(--navy);
+    border-radius: 18px;
+    padding: 18px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 5px 0 var(--navy);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 0 var(--navy); }
+  .cat-card:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--navy); }
+  .cat-emoji {
+    font-size: 42px;
+    display: block;
+    margin-bottom: 6px;
+    line-height: 1;
+  }
+  .cat-name {
+    font-family: 'Fredoka';
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--navy);
+    margin-bottom: 2px;
+  }
+  .cat-name-kr {
+    font-family: 'Gowun Dodum';
+    font-size: 12px;
+    color: var(--navy-soft);
+    margin-bottom: 8px;
+  }
+  .cat-progress {
+    height: 6px;
+    background: #F0E4CC;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .cat-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 6px;
+    transition: width 0.5s;
+  }
+  .cat-progress-text {
+    font-size: 11px;
+    color: var(--navy-soft);
+    margin-top: 4px;
+    font-weight: 600;
+    font-family: 'Fredoka';
+  }
+
+  /* MODE SELECT */
+  .modes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+  }
+  .mode-card {
+    background: white;
+    border: 3px solid var(--navy);
+    border-radius: 18px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 5px 0 var(--navy);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .mode-card:hover { transform: translateY(-3px); box-shadow: 0 8px 0 var(--navy); }
+  .mode-card:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--navy); }
+  .mode-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+    border: 3px solid var(--navy);
+  }
+  .mode-title {
+    font-family: 'Fredoka';
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--navy);
+    line-height: 1.2;
+  }
+  .mode-desc {
+    font-family: 'Gowun Dodum';
+    font-size: 12px;
+    color: var(--navy-soft);
+    margin-top: 3px;
+  }
+
+  /* GAME AREA */
+  .game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .progress-pill {
+    background: white;
+    padding: 8px 14px;
+    border-radius: 12px;
+    border: 3px solid var(--navy);
+    font-family: 'Fredoka';
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 3px 0 var(--navy);
+  }
+
+  /* FLASHCARD */
+  .flash {
+    perspective: 1500px;
+    margin: 30px auto;
+    max-width: 400px;
+    height: 320px;
+  }
+  .flash-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.7s cubic-bezier(.68,-0.55,.265,1.55);
+    transform-style: preserve-3d;
+    cursor: pointer;
+  }
+  .flash.flipped .flash-inner { transform: rotateY(180deg); }
+  .flash-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 24px;
+    border: 4px solid var(--navy);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-shadow: 0 8px 0 var(--navy);
+  }
+  .flash-front {
+    background: linear-gradient(135deg, #FFE5B4, var(--yellow));
+  }
+  .flash-back {
+    background: linear-gradient(135deg, #B2F5EA, var(--accent));
+    transform: rotateY(180deg);
+  }
+  .flash-word {
+    font-family: 'Fredoka';
+    font-weight: 700;
+    font-size: 54px;
+    color: var(--navy);
+    letter-spacing: -1px;
+    text-align: center;
+    line-height: 1.1;
+  }
+  .flash-mean {
+    font-family: 'Gowun Dodum';
+    font-size: 28px;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    text-shadow: 2px 2px 0 var(--navy);
+  }
+  .flash-hint {
+    font-family: 'Gowun Dodum';
+    font-size: 13px;
+    color: var(--navy-soft);
+    margin-top: 16px;
+  }
+  .speak-btn {
+    background: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 3px solid var(--navy);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-top: 16px;
+    box-shadow: 0 3px 0 var(--navy);
+    transition: all 0.15s;
+  }
+  .speak-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 0 var(--navy); }
+  .speak-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--navy); }
+
+  /* QUIZ */
+  .quiz-question {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: linear-gradient(135deg, #FFE5B4, var(--yellow));
+    border-radius: 24px;
+    border: 4px solid var(--navy);
+    margin-bottom: 20px;
+    box-shadow: 0 6px 0 var(--navy);
+  }
+  .quiz-label {
+    font-family: 'Gowun Dodum';
+    font-size: 13px;
+    color: var(--navy-soft);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .quiz-word {
+    font-family: 'Fredoka';
+    font-weight: 700;
+    font-size: 48px;
+    color: var(--navy);
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+  .quiz-word-kr {
+    font-family: 'Gowun Dodum';
+    font-weight: 700;
+    font-size: 38px;
+    color: var(--navy);
+    line-height: 1.2;
+  }
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 500px) {
+    .quiz-options { grid-template-columns: 1fr; }
+    .quiz-word { font-size: 36px; }
+    .quiz-word-kr { font-size: 28px; }
+    .flash-word { font-size: 40px; }
+  }
+  .quiz-option {
+    background: white;
+    border: 3px solid var(--navy);
+    border-radius: 16px;
+    padding: 16px;
+    cursor: pointer;
+    font-family: 'Gowun Dodum';
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--navy);
+    box-shadow: 0 4px 0 var(--navy);
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .quiz-option:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--navy); }
+  .quiz-option:active:not(.correct):not(.wrong) { transform: translateY(2px); box-shadow: 0 1px 0 var(--navy); }
+  .quiz-option.correct {
+    background: var(--success);
+    color: white;
+    animation: pulse 0.5s;
+  }
+  .quiz-option.wrong {
+    background: var(--danger);
+    color: white;
+    animation: shake 0.5s;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  /* SPELLING */
+  .spell-display {
+    text-align: center;
+    background: linear-gradient(135deg, #E6D8FC, var(--purple));
+    padding: 30px 20px;
+    border-radius: 24px;
+    border: 4px solid var(--navy);
+    margin-bottom: 20px;
+    box-shadow: 0 6px 0 var(--navy);
+  }
+  .spell-mean {
+    font-family: 'Gowun Dodum';
+    font-weight: 700;
+    font-size: 38px;
+    color: white;
+    text-shadow: 3px 3px 0 var(--navy);
+    margin-bottom: 14px;
+  }
+  .spell-hint {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .spell-slot {
+    width: 32px;
+    height: 40px;
+    background: white;
+    border: 2px solid var(--navy);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka';
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--primary);
+  }
+  .spell-slot.space { background: transparent; border: none; width: 16px; }
+  .spell-input {
+    width: 100%;
+    padding: 16px;
+    font-size: 24px;
+    font-family: 'Fredoka';
+    font-weight: 600;
+    border: 3px solid var(--navy);
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 5px 0 var(--navy);
+    outline: none;
+    text-transform: lowercase;
+    color: var(--navy);
+  }
+  .spell-input:focus { transform: translateY(-2px); box-shadow: 0 7px 0 var(--navy); }
+  .spell-input.correct { background: #E8F5E9; border-color: var(--success); }
+  .spell-input.wrong { background: #FFEBEE; border-color: var(--danger); animation: shake 0.5s; }
+
+  /* MATCHING */
+  .match-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .match-tile {
+    background: white;
+    border: 3px solid var(--navy);
+    border-radius: 14px;
+    padding: 14px 10px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: 600;
+    color: var(--navy);
+    box-shadow: 0 4px 0 var(--navy);
+    transition: all 0.15s;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .match-tile.eng { font-family: 'Fredoka'; font-size: 18px; }
+  .match-tile.kor { font-family: 'Gowun Dodum'; font-size: 16px; }
+  .match-tile:hover:not(.matched):not(.selected) { transform: translateY(-2px); box-shadow: 0 6px 0 var(--navy); }
+  .match-tile.selected { background: var(--yellow); transform: translateY(2px); box-shadow: 0 1px 0 var(--navy); }
+  .match-tile.matched { background: var(--success); color: white; opacity: 0.6; cursor: default; border-color: var(--success); box-shadow: 0 3px 0 #2E7D32; }
+  .match-tile.wrong-match { background: var(--danger); color: white; animation: shake 0.4s; }
+
+  /* FEEDBACK */
+  .feedback {
+    text-align: center;
+    padding: 20px;
+    margin: 16px 0;
+    border-radius: 16px;
+    font-family: 'Fredoka';
+    font-weight: 600;
+    font-size: 18px;
+    border: 3px solid var(--navy);
+    animation: cardIn 0.3s;
+  }
+  .feedback.correct { background: #C8E6C9; color: var(--success); }
+  .feedback.wrong { background: #FFCDD2; color: var(--danger); }
+
+  /* RESULTS */
+  .result-hero {
+    text-align: center;
+    padding: 30px 20px;
+  }
+  .result-emoji {
+    font-size: 100px;
+    margin-bottom: 10px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  .result-title {
+    font-family: 'Fredoka';
+    font-weight: 700;
+    font-size: 36px;
+    color: var(--primary);
+    text-shadow: 3px 3px 0 var(--navy);
+    margin-bottom: 6px;
+    line-height: 1.1;
+  }
+  .result-sub {
+    font-family: 'Gowun Dodum';
+    color: var(--navy-soft);
+    font-size: 16px;
+    margin-bottom: 24px;
+  }
+  .result-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .stat-box {
+    background: white;
+    border: 3px solid var(--navy);
+    border-radius: 14px;
+    padding: 14px 8px;
+    text-align: center;
+    box-shadow: 0 4px 0 var(--navy);
+  }
+  .stat-num {
+    font-family: 'Fredoka';
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--primary);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: 'Gowun Dodum';
+    font-size: 12px;
+    color: var(--navy-soft);
+    margin-top: 4px;
+  }
+
+  /* CONFETTI */
+  .confetti {
+    position: fixed;
+    top: -10px;
+    width: 10px;
+    height: 14px;
+    pointer-events: none;
+    animation: fall linear forwards;
+    z-index: 9999;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); }
+  }
+
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 10px;
+    background: var(--yellow);
+    border: 2px solid var(--navy);
+    font-family: 'Fredoka';
+    font-weight: 600;
+    font-size: 12px;
+    margin-left: 6px;
+  }
+
+  .controls-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .level-up-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(42, 53, 88, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    animation: cardIn 0.3s;
+  }
+  .level-up-overlay.show { display: flex; }
+  .level-up-box {
+    background: white;
+    border-radius: 24px;
+    padding: 40px 30px;
+    text-align: center;
+    border: 4px solid var(--navy);
+    box-shadow: 0 10px 0 var(--navy);
+    animation: popIn 0.5s cubic-bezier(.68,-0.55,.265,1.55);
+    max-width: 340px;
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .level-up-num {
+    font-family: 'Fredoka';
+    font-weight: 700;
+    font-size: 70px;
+    color: var(--primary);
+    line-height: 1;
+    text-shadow: 4px 4px 0 var(--navy);
+  }
+  .level-up-title {
+    font-family: 'Fredoka';
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--navy);
+    margin: 10px 0 6px;
+  }
+  .level-up-msg {
+    font-family: 'Gowun Dodum';
+    font-size: 15px;
+    color: var(--navy-soft);
+    margin-bottom: 20px;
+  }
+
+  .divider {
+    height: 3px;
+    background: var(--navy);
+    opacity: 0.1;
+    margin: 20px 0;
+    border-radius: 2px;
+  }
+
+  .help-text {
+    background: #FFF8E1;
+    border: 2px dashed var(--primary);
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-family: 'Gowun Dodum';
+    font-size: 13px;
+    color: var(--navy-soft);
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<div class="level-up-overlay" id="levelUpOverlay">
+  <div class="level-up-box">
+    <div class="level-up-num" id="levelUpNum">2</div>
+    <div class="level-up-title">레벨 업! 🎉</div>
+    <div class="level-up-msg">정말 대단해! 계속 이어서 공부해볼까?</div>
+    <button class="btn btn-primary" onclick="closeLevelUp()">좋아! 계속하기</button>
+  </div>
+</div>
+
+<script>
+// ==========================================================
+// VOCABULARY DATA - 교육부 초등 필수 영단어 (주제별)
+// ==========================================================
+const VOCAB = {
+  family: {
+    name: 'Family', nameKr: '가족', emoji: '👨‍👩‍👧‍👦', color: '#FF6F91',
+    words: [
+      { en: 'mother', ko: '엄마, 어머니' },
+      { en: 'father', ko: '아빠, 아버지' },
+      { en: 'brother', ko: '형, 오빠, 남동생' },
+      { en: 'sister', ko: '누나, 언니, 여동생' },
+      { en: 'grandmother', ko: '할머니' },
+      { en: 'grandfather', ko: '할아버지' },
+      { en: 'family', ko: '가족' },
+      { en: 'son', ko: '아들' },
+      { en: 'daughter', ko: '딸' },
+      { en: 'baby', ko: '아기' },
+      { en: 'friend', ko: '친구' },
+      { en: 'parent', ko: '부모님' },
+      { en: 'uncle', ko: '삼촌' },
+      { en: 'aunt', ko: '이모, 고모' },
+      { en: 'cousin', ko: '사촌' }
+    ]
+  },
+  school: {
+    name: 'School', nameKr: '학교', emoji: '🏫', color: '#2EC4B6',
+    words: [
+      { en: 'school', ko: '학교' },
+      { en: 'teacher', ko: '선생님' },
+      { en: 'student', ko: '학생' },
+      { en: 'classroom', ko: '교실' },
+      { en: 'book', ko: '책' },
+      { en: 'pencil', ko: '연필' },
+      { en: 'eraser', ko: '지우개' },
+      { en: 'desk', ko: '책상' },
+      { en: 'chair', ko: '의자' },
+      { en: 'bag', ko: '가방' },
+      { en: 'notebook', ko: '공책' },
+      { en: 'pen', ko: '펜' },
+      { en: 'ruler', ko: '자' },
+      { en: 'board', ko: '칠판' },
+      { en: 'crayon', ko: '크레용' },
+      { en: 'study', ko: '공부하다' },
+      { en: 'class', ko: '수업, 학급' },
+      { en: 'homework', ko: '숙제' },
+      { en: 'library', ko: '도서관' }
+    ]
+  },
+  animals: {
+    name: 'Animals', nameKr: '동물', emoji: '🐾', color: '#FF8C42',
+    words: [
+      { en: 'dog', ko: '개' },
+      { en: 'cat', ko: '고양이' },
+      { en: 'bird', ko: '새' },
+      { en: 'fish', ko: '물고기' },
+      { en: 'rabbit', ko: '토끼' },
+      { en: 'tiger', ko: '호랑이' },
+      { en: 'lion', ko: '사자' },
+      { en: 'elephant', ko: '코끼리' },
+      { en: 'monkey', ko: '원숭이' },
+      { en: 'bear', ko: '곰' },
+      { en: 'pig', ko: '돼지' },
+      { en: 'cow', ko: '소' },
+      { en: 'horse', ko: '말' },
+      { en: 'duck', ko: '오리' },
+      { en: 'chicken', ko: '닭' },
+      { en: 'snake', ko: '뱀' },
+      { en: 'mouse', ko: '쥐' },
+      { en: 'frog', ko: '개구리' }
+    ]
+  },
+  food: {
+    name: 'Food', nameKr: '음식', emoji: '🍎', color: '#FFC857',
+    words: [
+      { en: 'apple', ko: '사과' },
+      { en: 'banana', ko: '바나나' },
+      { en: 'bread', ko: '빵' },
+      { en: 'milk', ko: '우유' },
+      { en: 'water', ko: '물' },
+      { en: 'juice', ko: '주스' },
+      { en: 'egg', ko: '계란' },
+      { en: 'rice', ko: '밥, 쌀' },
+      { en: 'cheese', ko: '치즈' },
+      { en: 'meat', ko: '고기' },
+      { en: 'cake', ko: '케이크' },
+      { en: 'cookie', ko: '쿠키' },
+      { en: 'candy', ko: '사탕' },
+      { en: 'pizza', ko: '피자' },
+      { en: 'noodle', ko: '국수' },
+      { en: 'soup', ko: '국, 수프' },
+      { en: 'sugar', ko: '설탕' },
+      { en: 'salt', ko: '소금' }
+    ]
+  },
+  body: {
+    name: 'Body', nameKr: '신체', emoji: '👀', color: '#845EC2',
+    words: [
+      { en: 'head', ko: '머리' },
+      { en: 'face', ko: '얼굴' },
+      { en: 'eye', ko: '눈' },
+      { en: 'nose', ko: '코' },
+      { en: 'mouth', ko: '입' },
+      { en: 'ear', ko: '귀' },
+      { en: 'hand', ko: '손' },
+      { en: 'foot', ko: '발' },
+      { en: 'arm', ko: '팔' },
+      { en: 'leg', ko: '다리' },
+      { en: 'finger', ko: '손가락' },
+      { en: 'hair', ko: '머리카락' },
+      { en: 'tooth', ko: '이빨' },
+      { en: 'body', ko: '몸' },
+      { en: 'neck', ko: '목' },
+      { en: 'knee', ko: '무릎' }
+    ]
+  },
+  colors: {
+    name: 'Colors', nameKr: '색깔', emoji: '🎨', color: '#FF6F91',
+    words: [
+      { en: 'red', ko: '빨간색' },
+      { en: 'blue', ko: '파란색' },
+      { en: 'yellow', ko: '노란색' },
+      { en: 'green', ko: '초록색' },
+      { en: 'black', ko: '검은색' },
+      { en: 'white', ko: '흰색' },
+      { en: 'pink', ko: '분홍색' },
+      { en: 'orange', ko: '주황색' },
+      { en: 'purple', ko: '보라색' },
+      { en: 'brown', ko: '갈색' },
+      { en: 'gray', ko: '회색' },
+      { en: 'gold', ko: '금색' }
+    ]
+  },
+  actions: {
+    name: 'Actions', nameKr: '행동', emoji: '🏃', color: '#2EC4B6',
+    words: [
+      { en: 'run', ko: '달리다' },
+      { en: 'jump', ko: '점프하다' },
+      { en: 'walk', ko: '걷다' },
+      { en: 'swim', ko: '수영하다' },
+      { en: 'eat', ko: '먹다' },
+      { en: 'drink', ko: '마시다' },
+      { en: 'sleep', ko: '자다' },
+      { en: 'read', ko: '읽다' },
+      { en: 'write', ko: '쓰다' },
+      { en: 'sing', ko: '노래하다' },
+      { en: 'dance', ko: '춤추다' },
+      { en: 'play', ko: '놀다' },
+      { en: 'go', ko: '가다' },
+      { en: 'come', ko: '오다' },
+      { en: 'see', ko: '보다' },
+      { en: 'listen', ko: '듣다' },
+      { en: 'speak', ko: '말하다' },
+      { en: 'open', ko: '열다' },
+      { en: 'close', ko: '닫다' },
+      { en: 'sit', ko: '앉다' },
+      { en: 'stand', ko: '서다' },
+      { en: 'laugh', ko: '웃다' }
+    ]
+  },
+  nature: {
+    name: 'Nature', nameKr: '자연', emoji: '🌳', color: '#4CAF50',
+    words: [
+      { en: 'sun', ko: '해, 태양' },
+      { en: 'moon', ko: '달' },
+      { en: 'star', ko: '별' },
+      { en: 'sky', ko: '하늘' },
+      { en: 'cloud', ko: '구름' },
+      { en: 'rain', ko: '비' },
+      { en: 'snow', ko: '눈' },
+      { en: 'wind', ko: '바람' },
+      { en: 'tree', ko: '나무' },
+      { en: 'flower', ko: '꽃' },
+      { en: 'mountain', ko: '산' },
+      { en: 'river', ko: '강' },
+      { en: 'sea', ko: '바다' },
+      { en: 'beach', ko: '해변' },
+      { en: 'grass', ko: '잔디' },
+      { en: 'fire', ko: '불' }
+    ]
+  },
+  home: {
+    name: 'Home', nameKr: '집', emoji: '🏠', color: '#FF8C42',
+    words: [
+      { en: 'house', ko: '집' },
+      { en: 'door', ko: '문' },
+      { en: 'window', ko: '창문' },
+      { en: 'room', ko: '방' },
+      { en: 'bed', ko: '침대' },
+      { en: 'table', ko: '탁자' },
+      { en: 'chair', ko: '의자' },
+      { en: 'kitchen', ko: '부엌' },
+      { en: 'bathroom', ko: '욕실' },
+      { en: 'key', ko: '열쇠' },
+      { en: 'clock', ko: '시계' },
+      { en: 'lamp', ko: '램프' }
+    ]
+  },
+  time: {
+    name: 'Time', nameKr: '시간', emoji: '🕐', color: '#845EC2',
+    words: [
+      { en: 'morning', ko: '아침' },
+      { en: 'afternoon', ko: '오후' },
+      { en: 'evening', ko: '저녁' },
+      { en: 'night', ko: '밤' },
+      { en: 'today', ko: '오늘' },
+      { en: 'yesterday', ko: '어제' },
+      { en: 'tomorrow', ko: '내일' },
+      { en: 'Monday', ko: '월요일' },
+      { en: 'Tuesday', ko: '화요일' },
+      { en: 'Wednesday', ko: '수요일' },
+      { en: 'Thursday', ko: '목요일' },
+      { en: 'Friday', ko: '금요일' },
+      { en: 'Saturday', ko: '토요일' },
+      { en: 'Sunday', ko: '일요일' }
+    ]
+  },
+  feelings: {
+    name: 'Feelings', nameKr: '감정', emoji: '😊', color: '#FFC857',
+    words: [
+      { en: 'happy', ko: '행복한' },
+      { en: 'sad', ko: '슬픈' },
+      { en: 'angry', ko: '화난' },
+      { en: 'hungry', ko: '배고픈' },
+      { en: 'tired', ko: '피곤한' },
+      { en: 'sleepy', ko: '졸린' },
+      { en: 'cold', ko: '추운' },
+      { en: 'hot', ko: '더운' },
+      { en: 'scared', ko: '무서운' },
+      { en: 'excited', ko: '신난' },
+      { en: 'sorry', ko: '미안한' },
+      { en: 'glad', ko: '기쁜' }
+    ]
+  },
+  sports: {
+    name: 'Sports', nameKr: '스포츠', emoji: '⚽', color: '#2EC4B6',
+    words: [
+      { en: 'soccer', ko: '축구' },
+      { en: 'baseball', ko: '야구' },
+      { en: 'basketball', ko: '농구' },
+      { en: 'tennis', ko: '테니스' },
+      { en: 'ball', ko: '공' },
+      { en: 'bike', ko: '자전거' },
+      { en: 'game', ko: '게임' },
+      { en: 'music', ko: '음악' },
+      { en: 'movie', ko: '영화' },
+      { en: 'run', ko: '달리다' },
+      { en: 'win', ko: '이기다' },
+      { en: 'team', ko: '팀' }
+    ]
+  }
+};
+
+const CATEGORIES = Object.keys(VOCAB);
+const XP_PER_LEVEL = 100;
+const XP_CORRECT = 10;
+const XP_BONUS_PERFECT = 30;
+const QUESTIONS_PER_ROUND = 8;
+
+// ==========================================================
+// GAME MODES
+// ==========================================================
+const MODES = {
+  flashcard: { name: '단어 카드', desc: '카드 넘기며 단어 익히기', emoji: '🎴', color: '#FFC857' },
+  meaning: { name: '뜻 맞추기', desc: '영어 → 한국어 뜻 고르기', emoji: '🎯', color: '#FF8C42' },
+  word: { name: '단어 맞추기', desc: '한국어 → 영어 단어 고르기', emoji: '🔤', color: '#2EC4B6' },
+  spelling: { name: '스펠링 도전', desc: '단어 직접 써보기', emoji: '✍️', color: '#845EC2' },
+  matching: { name: '짝 맞추기', desc: '영어-한국어 짝 찾기', emoji: '🧩', color: '#FF6F91' }
+};
+
+// ==========================================================
+// STATE & STORAGE
+// ==========================================================
+let state = {
+  name: '',
+  xp: 0,
+  level: 1,
+  streak: 0,
+  lastPlayed: null,
+  mastered: {}, // { categoryKey: [wordIndex, wordIndex...] }
+  screen: 'welcome',
+  currentCategory: null,
+  currentMode: null,
+  gameState: null
+};
+
+async function loadState() {
+  try {
+    const result = await window.storage.get('english_adventure_state');
+    if (result && result.value) {
+      const loaded = JSON.parse(result.value);
+      state = { ...state, ...loaded };
+      if (typeof loaded.soundEnabled === 'boolean') soundEnabled = loaded.soundEnabled;
+      // Update streak
+      if (state.lastPlayed) {
+        const last = new Date(state.lastPlayed).toDateString();
+        const today = new Date().toDateString();
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        if (last !== today && last !== yesterday) state.streak = 0;
+      }
+    }
+  } catch (e) {
+    // No saved state yet
+  }
+}
+
+async function saveState() {
+  try {
+    const toSave = {
+      name: state.name,
+      xp: state.xp,
+      level: state.level,
+      streak: state.streak,
+      lastPlayed: state.lastPlayed,
+      mastered: state.mastered,
+      soundEnabled: soundEnabled
+    };
+    await window.storage.set('english_adventure_state', JSON.stringify(toSave));
+  } catch (e) {
+    console.error('Save failed', e);
+  }
+}
+
+// ==========================================================
+// UTILITIES
+// ==========================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US';
+  u.rate = 0.85;
+  u.pitch = 1.1;
+  window.speechSynthesis.speak(u);
+}
+
+function confetti() {
+  const colors = ['#FF8C42', '#2EC4B6', '#FF6F91', '#FFC857', '#845EC2'];
+  for (let i = 0; i < 40; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    c.style.animationDelay = Math.random() * 0.5 + 's';
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4500);
+  }
+}
+
+// ==========================================================
+// SOUND ENGINE - 풍부한 효과음 생성
+// ==========================================================
+let audioCtx = null;
+let soundEnabled = true;
+let masterGain = null;
+
+function getAudioCtx() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.7;
+    masterGain.connect(audioCtx.destination);
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// 단일 톤 재생 (ADSR 엔벨로프 적용)
+function playTone(freq, duration, opts = {}) {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioCtx();
+    const {
+      type = 'sine',
+      volume = 0.18,
+      attack = 0.005,
+      release = 0.15,
+      delay = 0,
+      pitchBend = 0
+    } = opts;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    if (pitchBend) {
+      osc.frequency.exponentialRampToValueAtTime(freq + pitchBend, ctx.currentTime + delay + duration);
+    }
+    osc.connect(gain);
+    gain.connect(masterGain);
+
+    const now = ctx.currentTime + delay;
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(volume, now + attack);
+    gain.gain.linearRampToValueAtTime(volume * 0.7, now + attack + duration * 0.3);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration + release);
+
+    osc.start(now);
+    osc.stop(now + duration + release + 0.05);
+  } catch (e) {}
+}
+
+// 노이즈 재생 (파동/마찰음 등 퍼커시브 사운드용)
+function playNoise(duration, opts = {}) {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioCtx();
+    const { volume = 0.08, filterFreq = 2000, filterType = 'lowpass', delay = 0, sweep = 0 } = opts;
+
+    const bufferSize = Math.floor(ctx.sampleRate * duration);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+    }
+
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = filterType;
+    filter.frequency.value = filterFreq;
+    if (sweep) {
+      filter.frequency.exponentialRampToValueAtTime(
+        Math.max(40, filterFreq + sweep),
+        ctx.currentTime + delay + duration
+      );
+    }
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(volume, ctx.currentTime + delay);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + duration);
+
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(masterGain);
+
+    source.start(ctx.currentTime + delay);
+  } catch (e) {}
+}
+
+function playSound(type) {
+  if (!soundEnabled) return;
+  try {
+    switch (type) {
+      case 'correct':
+        // 밝고 경쾌한 '띵!' - E5 → B5 → E6 아르페지오
+        playTone(659, 0.1, { type: 'triangle', volume: 0.2 });
+        playTone(988, 0.12, { type: 'triangle', volume: 0.2, delay: 0.07 });
+        playTone(1319, 0.25, { type: 'sine', volume: 0.18, delay: 0.13 });
+        playTone(1975, 0.3, { type: 'sine', volume: 0.08, delay: 0.18 });
+        break;
+
+      case 'wrong':
+        // 부드러운 '아쉬워' - 아이에게 너무 거칠지 않게
+        playTone(349, 0.12, { type: 'triangle', volume: 0.14 });
+        playTone(277, 0.2, { type: 'triangle', volume: 0.14, delay: 0.1 });
+        playTone(207, 0.25, { type: 'sine', volume: 0.1, delay: 0.18 });
+        break;
+
+      case 'levelup':
+        // 레벨업 팡파르 - C-E-G-C + 반짝이는 하이톤
+        [523, 659, 784, 1047].forEach((freq, i) => {
+          playTone(freq, 0.15, { type: 'triangle', volume: 0.2, delay: i * 0.09 });
+        });
+        playTone(1568, 0.4, { type: 'sine', volume: 0.12, delay: 0.4 });
+        playTone(2093, 0.5, { type: 'sine', volume: 0.08, delay: 0.5 });
+        playTone(2637, 0.4, { type: 'sine', volume: 0.06, delay: 0.55 });
+        break;
+
+      case 'perfect':
+        // 올클리어 - 화려한 상승 스케일
+        [523, 659, 784, 1047, 1319, 1568, 2093].forEach((freq, i) => {
+          playTone(freq, 0.12, { type: 'triangle', volume: 0.18, delay: i * 0.07 });
+        });
+        // 심벌 크래시
+        playNoise(0.6, { volume: 0.05, filterFreq: 8000, filterType: 'highpass', delay: 0.5, sweep: -6000 });
+        break;
+
+      case 'flip':
+        // 카드 넘기는 소리 - 짧은 노이즈 휘익
+        playNoise(0.12, { volume: 0.06, filterFreq: 4000, sweep: -2500 });
+        break;
+
+      case 'click':
+        // 버튼 클릭 - 깔끔한 짧은 톡
+        playTone(1200, 0.03, { type: 'sine', volume: 0.08, attack: 0.001, release: 0.03 });
+        playTone(800, 0.04, { type: 'sine', volume: 0.06, attack: 0.001, release: 0.05, delay: 0.01 });
+        break;
+
+      case 'select':
+        // 선택 팝 - 부드러운 두 음
+        playTone(523, 0.06, { type: 'sine', volume: 0.12, attack: 0.002 });
+        playTone(784, 0.08, { type: 'sine', volume: 0.1, delay: 0.04 });
+        break;
+
+      case 'match':
+        // 짝 맞추기 성공 - 상승하는 플링크
+        playTone(784, 0.08, { type: 'triangle', volume: 0.18 });
+        playTone(1047, 0.12, { type: 'triangle', volume: 0.16, delay: 0.05 });
+        playTone(1568, 0.2, { type: 'sine', volume: 0.14, delay: 0.1 });
+        playNoise(0.15, { volume: 0.04, filterFreq: 6000, filterType: 'highpass', delay: 0.05 });
+        break;
+
+      case 'gameStart':
+        // 게임 시작 - 에너지 넘치는 상승
+        [392, 523, 659, 784].forEach((freq, i) => {
+          playTone(freq, 0.1, { type: 'triangle', volume: 0.16, delay: i * 0.06 });
+        });
+        break;
+
+      case 'welcome':
+        // 웰컴 - 따뜻한 멜로디
+        playTone(523, 0.25, { type: 'sine', volume: 0.16 });
+        playTone(659, 0.25, { type: 'sine', volume: 0.16, delay: 0.15 });
+        playTone(784, 0.45, { type: 'sine', volume: 0.16, delay: 0.3 });
+        playTone(1047, 0.3, { type: 'sine', volume: 0.12, delay: 0.5 });
+        break;
+
+      case 'category':
+        // 카테고리 진입 - 부드러운 띠리링
+        playTone(659, 0.1, { type: 'sine', volume: 0.14 });
+        playTone(880, 0.12, { type: 'sine', volume: 0.14, delay: 0.06 });
+        break;
+
+      case 'back':
+        // 뒤로가기 - 짧은 하강
+        playTone(660, 0.08, { type: 'sine', volume: 0.1 });
+        playTone(440, 0.1, { type: 'sine', volume: 0.1, delay: 0.05 });
+        break;
+
+      case 'type':
+        // 타이핑 - 매우 짧은 톡
+        playTone(1400 + Math.random() * 200, 0.015, {
+          type: 'square', volume: 0.03, attack: 0.001, release: 0.01
+        });
+        break;
+
+      case 'streak':
+        // 스트릭/연속 정답 보너스
+        [659, 880, 1175, 1568].forEach((freq, i) => {
+          playTone(freq, 0.1, { type: 'triangle', volume: 0.15, delay: i * 0.05 });
+        });
+        break;
+    }
+  } catch (e) {
+    console.error('Sound error', e);
+  }
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  saveState();
+  if (soundEnabled) {
+    getAudioCtx();
+    playSound('click');
+  }
+  render();
+}
+
+function addXP(amount) {
+  const prevLevel = state.level;
+  state.xp += amount;
+  const newLevel = Math.floor(state.xp / XP_PER_LEVEL) + 1;
+  if (newLevel > prevLevel) {
+    state.level = newLevel;
+    showLevelUp(newLevel);
+  }
+  saveState();
+}
+
+function showLevelUp(lvl) {
+  document.getElementById('levelUpNum').textContent = lvl;
+  document.getElementById('levelUpOverlay').classList.add('show');
+  playSound('levelup');
+  confetti();
+}
+
+function closeLevelUp() {
+  document.getElementById('levelUpOverlay').classList.remove('show');
+  render();
+}
+
+// ==========================================================
+// HEADER
+// ==========================================================
+function renderHeader() {
+  if (!state.name) return '';
+  const xpInLevel = state.xp % XP_PER_LEVEL;
+  const xpPct = (xpInLevel / XP_PER_LEVEL) * 100;
+  return `
+    <div class="header">
+      <div class="avatar">🦁</div>
+      <div class="user-info">
+        <div class="user-name">${state.name}</div>
+        <div class="user-level">Lv.${state.level} 영어 탐험가</div>
+      </div>
+      <div class="xp-container">
+        <div class="xp-bar"><div class="xp-fill" style="width:${xpPct}%"></div></div>
+        <div class="xp-text">⚡ ${xpInLevel} / ${XP_PER_LEVEL} XP · 총 ${state.xp}</div>
+      </div>
+      <div class="streak">🔥 ${state.streak}일</div>
+      <button class="sound-toggle" onclick="toggleSound()" title="소리 켜기/끄기">
+        ${soundEnabled ? '🔊' : '🔇'}
+      </button>
+    </div>
+  `;
+}
+
+// ==========================================================
+// SCREENS
+// ==========================================================
+function renderWelcome() {
+  return `
+    <div class="card welcome">
+      <div class="welcome-emoji">🦁</div>
+      <h1>영어 단어 모험</h1>
+      <p>안녕! 나는 너의 영어 선생님 Leo야 🦁<br>같이 재미있게 영어 공부 해볼까?</p>
+      <input type="text" class="name-input" id="nameInput" placeholder="이름을 알려줄래?" maxlength="10">
+      <div style="margin-top:20px">
+        <button class="btn btn-primary btn-lg" onclick="startGame()">🚀 출발!</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderHome() {
+  const totalWords = CATEGORIES.reduce((sum, k) => sum + VOCAB[k].words.length, 0);
+  const totalMastered = CATEGORIES.reduce((sum, k) => sum + (state.mastered[k]?.length || 0), 0);
+
+  return `
+    ${renderHeader()}
+    <div class="card">
+      <div class="screen-title">🌟 주제를 골라봐!</div>
+      <div class="screen-sub">원하는 주제를 선택하면 다양한 게임으로 단어를 공부할 수 있어요</div>
+
+      <div style="background: linear-gradient(135deg, #FFE5B4, var(--yellow)); padding: 14px 18px; border-radius: 14px; border: 3px solid var(--navy); display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div>
+          <div style="font-family: 'Fredoka'; font-weight: 600; font-size: 16px; color: var(--navy);">전체 진도</div>
+          <div style="font-family: 'Gowun Dodum'; font-size: 13px; color: var(--navy-soft);">${totalMastered} / ${totalWords} 단어 마스터!</div>
+        </div>
+        <div style="font-family: 'Fredoka'; font-size: 28px; font-weight: 700; color: var(--primary);">${Math.round(totalMastered/totalWords*100)}%</div>
+      </div>
+
+      <div class="categories">
+        ${CATEGORIES.map(key => {
+          const cat = VOCAB[key];
+          const mastered = state.mastered[key]?.length || 0;
+          const pct = (mastered / cat.words.length) * 100;
+          return `
+            <div class="cat-card" style="background: linear-gradient(180deg, white 60%, ${cat.color}22);" onclick="selectCategory('${key}')">
+              <span class="cat-emoji">${cat.emoji}</span>
+              <div class="cat-name">${cat.name}</div>
+              <div class="cat-name-kr">${cat.nameKr}</div>
+              <div class="cat-progress"><div class="cat-progress-fill" style="width:${pct}%; background:${cat.color};"></div></div>
+              <div class="cat-progress-text">${mastered}/${cat.words.length}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderModeSelect() {
+  const cat = VOCAB[state.currentCategory];
+  const mastered = state.mastered[state.currentCategory]?.length || 0;
+  return `
+    ${renderHeader()}
+    <div class="card">
+      <button class="btn btn-ghost btn-sm" onclick="goHome()">← 돌아가기</button>
+      <div style="text-align:center; margin: 16px 0;">
+        <div style="font-size: 60px;">${cat.emoji}</div>
+        <div class="screen-title" style="color: ${cat.color};">${cat.name}</div>
+        <div class="screen-sub">${cat.nameKr} · ${cat.words.length}개 단어 · ${mastered}개 마스터</div>
+      </div>
+      <div style="font-family: 'Fredoka'; font-weight: 600; color: var(--navy); margin-bottom: 10px;">어떤 게임으로 공부할까?</div>
+      <div class="modes">
+        ${Object.keys(MODES).map(mk => {
+          const m = MODES[mk];
+          return `
+            <div class="mode-card" onclick="startMode('${mk}')">
+              <div class="mode-icon" style="background: ${m.color};">${m.emoji}</div>
+              <div>
+                <div class="mode-title">${m.name}</div>
+                <div class="mode-desc">${m.desc}</div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ==========================================================
+// FLASHCARD MODE
+// ==========================================================
+function renderFlashcard() {
+  const gs = state.gameState;
+  const word = gs.words[gs.idx];
+  const flipped = gs.flipped ? 'flipped' : '';
+  return `
+    ${renderHeader()}
+    <div class="card">
+      <div class="game-header">
+        <button class="btn btn-ghost btn-sm" onclick="backToMode()">← 나가기</button>
+        <div class="progress-pill">🎴 ${gs.idx + 1} / ${gs.words.length}</div>
+      </div>
+
+      <div class="flash ${flipped}" id="flash" onclick="flipCard()">
+        <div class="flash-inner">
+          <div class="flash-face flash-front">
+            <div class="flash-word">${word.en}</div>
+            <button class="speak-btn" onclick="event.stopPropagation(); speak('${word.en}')">🔊</button>
+            <div class="flash-hint">카드를 눌러서 뜻 확인하기</div>
+          </div>
+          <div class="flash-face flash-back">
+            <div class="flash-mean">${word.ko}</div>
+            <div class="flash-hint" style="color: white;">${word.en}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <button class="btn btn-sm" onclick="prevCard()" ${gs.idx === 0 ? 'disabled style="opacity:0.4"' : ''}>← 이전</button>
+        <button class="btn btn-accent btn-sm" onclick="speak('${word.en}')">🔊 다시 듣기</button>
+        ${gs.idx === gs.words.length - 1
+          ? `<button class="btn btn-primary btn-sm" onclick="finishFlashcard()">끝! 다음 ➜</button>`
+          : `<button class="btn btn-primary btn-sm" onclick="nextCard()">다음 →</button>`}
+      </div>
+
+      <div class="help-text">💡 <b>꿀팁:</b> 소리도 듣고, 따라 말해보면 더 잘 외워져요!</div>
+    </div>
+  `;
+}
+
+function startFlashcard() {
+  const cat = VOCAB[state.currentCategory];
+  state.gameState = {
+    words: shuffle(cat.words),
+    idx: 0,
+    flipped: false,
+    seen: new Set()
+  };
+  state.screen = 'flashcard';
+  render();
+  setTimeout(() => speak(state.gameState.words[0].en), 300);
+}
+
+function flipCard() {
+  state.gameState.flipped = !state.gameState.flipped;
+  playSound('flip');
+  render();
+}
+
+function nextCard() {
+  const gs = state.gameState;
+  gs.seen.add(gs.idx);
+  gs.idx++;
+  gs.flipped = false;
+  playSound('flip');
+  render();
+  setTimeout(() => speak(gs.words[gs.idx].en), 300);
+}
+
+function prevCard() {
+  state.gameState.idx--;
+  state.gameState.flipped = false;
+  playSound('flip');
+  render();
+  setTimeout(() => speak(state.gameState.words[state.gameState.idx].en), 300);
+}
+
+// ==========================================================
+// MEANING QUIZ (English → Korean)
+// ==========================================================
+function startQuiz(mode) {
+  const cat = VOCAB[state.currentCategory];
+  const words = shuffle(cat.words).slice(0, Math.min(QUESTIONS_PER_ROUND, cat.words.length));
+  state.gameState = {
+    mode: mode,
+    words: words,
+    idx: 0,
+    correct: 0,
+    answered: false,
+    selectedIdx: null
+  };
+  state.screen = mode;
+  render();
+  if (mode === 'meaning') setTimeout(() => speak(words[0].en), 300);
+}
+
+function renderMeaningQuiz() {
+  const gs = state.gameState;
+  const word = gs.words[gs.idx];
+  const cat = VOCAB[state.currentCategory];
+
+  // Generate options
+  if (!gs.options) {
+    const wrongs = shuffle(cat.words.filter(w => w.en !== word.en)).slice(0, 3);
+    gs.options = shuffle([word, ...wrongs]);
+  }
+
+  return `
+    ${renderHeader()}
+    <div class="card">
+      <div class="game-header">
+        <button class="btn btn-ghost btn-sm" onclick="backToMode()">← 나가기</button>
+        <div class="progress-pill">🎯 ${gs.idx + 1} / ${gs.words.length} · ✅ ${gs.correct}</div>
+      </div>
+
+      <div class="quiz-question">
+        <div class="quiz-label">이 단어의 뜻은?</div>
+        <div class="quiz-word">${word.en}</div>
+        <button class="speak-btn" onclick="speak('${word.en}')" style="margin: 14px auto 0;">🔊</button>
+      </div>
+
+      <div class="quiz-options">
+        ${gs.options.map((opt, i) => {
+          let cls = '';
+          if (gs.answered) {
+            if (opt.en === word.en) cls = 'correct';
+            else if (i === gs.selectedIdx) cls = 'wrong';
+          }
+          return `<div class="quiz-option ${cls}" onclick="answerMeaning(${i})">${opt.ko}</div>`;
+        }).join('')}
+      </div>
+
+      ${gs.answered ? `
+        <div class="feedback ${gs.options[gs.selectedIdx].en === word.en ? 'correct' : 'wrong'}">
+          ${gs.options[gs.selectedIdx].en === word.en
+            ? `🎉 정답! <b>${word.en}</b> = ${word.ko}`
+            : `😢 아쉬워! <b>${word.en}</b>의 뜻은 <b>${word.ko}</b>야`}
+        </div>
+        <div style="text-align:center;">
+          <button class="btn btn-primary" onclick="nextQuestion()">
+            ${gs.idx === gs.words.length - 1 ? '결과 보기 🏆' : '다음 문제 →'}
+          </button>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function answerMeaning(i) {
+  const gs = state.gameState;
+  if (gs.answered) return;
+  gs.answered = true;
+  gs.selectedIdx = i;
+  const word = gs.words[gs.idx];
+  const isCorrect = gs.options[i].en === word.en;
+  if (isCorrect) {
+    gs.correct++;
+    playSound('correct');
+    markMastered(state.currentCategory, word.en);
+  } else {
+    playSound('wrong');
+  }
+  render();
+}
+
+// ==========================================================
+// WORD QUIZ (Korean → English)
+// ==========================================================
+function renderWordQuiz() {
+  const gs = state.gameState;
+  const word = gs.words[gs.idx];
+  const cat = VOCAB[state.currentCategory];
+
+  if (!gs.options) {
+    const wrongs = shuffle(cat.words.filter(w => w.en !== word.en)).slice(0, 3);
+    gs.options = shuffle([word, ...wrongs]);
+  }
+
+  return `
+    ${renderHeader()}
+    <div class="card">
+      <div class="game-header">
+        <button class="btn btn-ghost btn-sm" onclick="backToMode()">← 나가기</button>
+        <div class="progress-pill">🔤 ${gs.idx + 1} / ${gs.words.length} · ✅ ${gs.correct}</div>
+      </div>
+
+      <div class="quiz-question">
+        <div class="quiz-label">이것을 영어로?</div>
+        <div class="quiz-word-kr">${word.ko}</div>
+      </div>
+
+      <div class="quiz-options">
+        ${gs.options.map((opt, i) => {
+          let cls = '';
+          if (gs.answered) {
+            if (opt.en === word.en) cls = 'correct';
+            else if (i === gs.selectedIdx) cls = 'wrong';
+          }
+          return `<div class="quiz-option ${cls}" style="font-family: 'Fredoka';" onclick="answerWord(${i})">${opt.en}</div>`;
+        }).join('')}
+      </div>
+
+      ${gs.answered ? `
+        <div class="feedback ${gs.options[gs.selectedIdx].en === word.en ? 'correct' : 'wrong'}">
+          ${gs.options[gs.selectedIdx].en === word.en
+            ? `🎉 정답! <b>${word.ko}</b> = ${word.en}`
+            : `😢 아쉬워! <b>${word.ko}</b>는 영어로 <b>${word.en}</b>!`}
+        </div>
+        <div style="text-align:center;">
+          <button class="btn btn-accent" onclick="speak('${word.en}')" style="margin-right: 8px;">🔊 들어보기</button>
+          <button class="btn btn-primary" onclick="nextQuestion()">
+            ${gs.idx === gs.words.length - 1 ? '결과 보기 🏆' : '다음 문제 →'}
+          </button>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function answerWord(i) {
+  const gs = state.gameState;
+  if (gs.answered) return;
+  gs.answered = true;
+  gs.selectedIdx = i;
+  const word = gs.words[gs.idx];
+  const isCorrect = gs.options[i].en === word.en;
+  if (isCorrect) {
+    gs.correct++;
+    playSound('correct');
+    markMastered(state.currentCategory, word.en);
+  } else {
+    playSound('wrong');
+  }
+  if (isCorrect) setTimeout(() => speak(word.en), 200);
+  render();
+}
+
+function nextQuestion() {
+  const gs = state.gameState;
+  gs.idx++;
+  gs.answered = false;
+  gs.selectedIdx = null;
+  gs.options = null;
+  if (gs.idx >= gs.words.length) {
+    finishQuiz();
+  } else {
+    render();
+    if (gs.mode === 'meaning') setTimeout(() => speak(gs.words[gs.idx].en), 300);
+  }
+}
+
+function finishQuiz() {
+  const gs = state.gameState;
+  let xpGained = gs.correct * XP_CORRECT;
+  const isPerfect = gs.correct === gs.words.length;
+  if (isPerfect) xpGained += XP_BONUS_PERFECT;
+  addXP(xpGained);
+  updateStreak();
+  state.gameState = {
+    mode: gs.mode,
+    total: gs.words.length,
+    correct: gs.correct,
+    xpGained: xpGained,
+    perfect: isPerfect
+  };
+  state.screen = 'result';
+  render();
+  if (isPerfect) {
+    setTimeout(() => playSound('perfect'), 200);
+    setTimeout(confetti, 300);
+  } else if (gs.correct / gs.words.length >= 0.75) {
+    setTimeout(() => playSound('streak'), 200);
+  }
+}
+
+// ==========================================================
+// SPELLING MODE
+// ==========================================================
+function renderSpelling() {
+  const gs = state.gameState;
+  const word = gs.words[gs.idx];
+
+  const slots = word.en.split('').map(c =>
+    c === ' ' ? '<div class="spell-slot space"></div>' : `<div class="spell-slot">?</div>`
+  ).join('');
+
+  return `
+    ${renderHeader()}
+    <div class="card">
+      <div class="game-header">
+        <button class="btn btn-ghost btn-sm" onclick="backToMode()">← 나가기</button>
+        <div class="progress-pill">✍️ ${gs.idx + 1} / ${gs.words.length} · ✅ ${gs.correct}</div>
+      </div>
+
+      <div class="spell-display">
+        <div class="spell-mean">${word.ko}</div>
+        <div class="spell-hint">${slots}</div>
+        <button class="speak-btn" onclick="speak('${word.en}')" style="margin: 12px auto 0;">🔊</button>
+      </div>
+
+      <input type="text"
+             class="spell-input ${gs.answered ? (gs.isCorrect ? 'correct' : 'wrong') : ''}"
+             id="spellInput"
+             placeholder="${word.en.length}글자로 써보세요"
+             ${gs.answered ? 'disabled' : ''}
+             autocomplete="off"
+             spellcheck="false"
+             onkeydown="handleSpellKey(event)">
+
+      ${gs.answered ? `
+        <div class="feedback ${gs.isCorrect ? 'correct' : 'wrong'}">
+          ${gs.isCorrect
+            ? `🎉 완벽해! <b>${word.en}</b> = ${word.ko}`
+            : `😢 정답은 <b>${word.en}</b>이었어!`}
+        </div>
+        <div style="text-align:center;">
+          <button class="btn btn-primary" onclick="nextQuestion()">
+            ${gs.idx === gs.words.length - 1 ? '결과 보기 🏆' : '다음 문제 →'}
+          </button>
+        </div>
+      ` : `
+        <div class="controls-row" style="justify-content: center; margin-top: 12px;">
+          <button class="btn btn-accent btn-sm" onclick="speak('${word.en}')">🔊 다시 듣기</button>
+          <button class="btn btn-primary btn-sm" onclick="checkSpelling()">확인 ✓</button>
+        </div>
+      `}
+      <div class="help-text">💡 모르겠으면 소리 버튼을 눌러 들어봐!</div>
+    </div>
+  `;
+}
+
+function checkSpelling() {
+  const gs = state.gameState;
+  if (gs.answered) return;
+  const input = document.getElementById('spellInput').value.trim().toLowerCase();
+  const word = gs.words[gs.idx];
+  const correct = input === word.en.toLowerCase();
+  gs.answered = true;
+  gs.isCorrect = correct;
+  if (correct) {
+    gs.correct++;
+    playSound('correct');
+    markMastered(state.currentCategory, word.en);
+    setTimeout(() => speak(word.en), 200);
+  } else {
+    playSound('wrong');
+  }
+  render();
+}
+
+function handleSpellKey(event) {
+  if (event.key === 'Enter') {
+    checkSpelling();
+    return;
+  }
+  // 타이핑 사운드 - 글자/숫자/스페이스만
+  if (event.key.length === 1 || event.key === 'Backspace') {
+    playSound('type');
+  }
+}
+
+// ==========================================================
+// MATCHING MODE
+// ==========================================================
+function startMatching() {
+  const cat = VOCAB[state.currentCategory];
+  const pairs = shuffle(cat.words).slice(0, Math.min(6, cat.words.length));
+  const tiles = [];
+  pairs.forEach((p, i) => {
+    tiles.push({ id: 'e' + i, pairId: i, text: p.en, type: 'eng', word: p });
+    tiles.push({ id: 'k' + i, pairId: i, text: p.ko, type: 'kor', word: p });
+  });
+  state.gameState = {
+    mode: 'matching',
+    tiles: shuffle(tiles),
+    selected: null,
+    matched: [],
+    mistakes: 0,
+    startTime: Date.now(),
+    totalPairs: pairs.length
+  };
+  state.screen = 'matching';
+  render();
+}
+
+function renderMatching() {
+  const gs = state.gameState;
+  return `
+    ${renderHeader()}
+    <div class="card">
+      <div class="game-header">
+        <button class="btn btn-ghost btn-sm" onclick="backToMode()">← 나가기</button>
+        <div class="progress-pill">🧩 ${gs.matched.length / 2} / ${gs.totalPairs} 쌍 · 실수 ${gs.mistakes}</div>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 10px;">
+        <div style="font-family: 'Fredoka'; font-weight: 600; color: var(--navy); font-size: 18px;">영어와 한국어 뜻을 짝지어봐! 🧩</div>
+      </div>
+
+      <div class="match-grid">
+        ${gs.tiles.map(t => {
+          let cls = t.type;
+          if (gs.matched.includes(t.id)) cls += ' matched';
+          if (gs.selected && gs.selected.id === t.id) cls += ' selected';
+          if (gs.wrongPair && gs.wrongPair.includes(t.id)) cls += ' wrong-match';
+          return `<div class="match-tile ${cls}" onclick="selectTile('${t.id}')">${t.text}</div>`;
+        }).join('')}
+      </div>
+
+      ${gs.matched.length === gs.tiles.length ? `
+        <div class="feedback correct" style="margin-top: 20px;">
+          🎉 전부 다 맞혔어! 실수는 ${gs.mistakes}번!
+        </div>
+        <div style="text-align:center;">
+          <button class="btn btn-primary" onclick="finishMatching()">결과 보기 🏆</button>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function selectTile(id) {
+  const gs = state.gameState;
+  if (gs.matched.includes(id)) return;
+  if (gs.wrongPair) return; // Wait for wrong pair to clear
+  const tile = gs.tiles.find(t => t.id === id);
+
+  if (!gs.selected) {
+    gs.selected = tile;
+    playSound('select');
+    render();
+    return;
+  }
+
+  if (gs.selected.id === id) {
+    gs.selected = null;
+    playSound('click');
+    render();
+    return;
+  }
+
+  // Check match
+  if (gs.selected.pairId === tile.pairId && gs.selected.type !== tile.type) {
+    gs.matched.push(gs.selected.id, tile.id);
+    playSound('match');
+    markMastered(state.currentCategory, tile.word.en);
+    setTimeout(() => speak(tile.word.en), 150);
+    gs.selected = null;
+    render();
+  } else {
+    gs.mistakes++;
+    gs.wrongPair = [gs.selected.id, tile.id];
+    playSound('wrong');
+    render();
+    setTimeout(() => {
+      gs.selected = null;
+      gs.wrongPair = null;
+      render();
+    }, 800);
+  }
+}
+
+function finishMatching() {
+  const gs = state.gameState;
+  const isPerfect = gs.mistakes === 0;
+  const xpGained = gs.totalPairs * XP_CORRECT + (isPerfect ? XP_BONUS_PERFECT : 0);
+  addXP(xpGained);
+  updateStreak();
+  state.gameState = {
+    mode: 'matching',
+    total: gs.totalPairs,
+    correct: gs.totalPairs,
+    mistakes: gs.mistakes,
+    xpGained: xpGained,
+    perfect: isPerfect
+  };
+  state.screen = 'result';
+  render();
+  if (isPerfect) {
+    setTimeout(() => playSound('perfect'), 200);
+    setTimeout(confetti, 300);
+  } else {
+    setTimeout(() => playSound('streak'), 200);
+  }
+}
+
+function finishFlashcard() {
+  const gs = state.gameState;
+  gs.seen.add(gs.idx);
+  addXP(gs.seen.size * 3);
+  updateStreak();
+  state.gameState = {
+    mode: 'flashcard',
+    total: gs.words.length,
+    correct: gs.seen.size,
+    xpGained: gs.seen.size * 3,
+    isFlashcard: true
+  };
+  state.screen = 'result';
+  render();
+  setTimeout(() => playSound('streak'), 200);
+}
+
+// ==========================================================
+// MASTERED TRACKING
+// ==========================================================
+function markMastered(catKey, wordEn) {
+  if (!state.mastered[catKey]) state.mastered[catKey] = [];
+  if (!state.mastered[catKey].includes(wordEn)) {
+    state.mastered[catKey].push(wordEn);
+    saveState();
+  }
+}
+
+function updateStreak() {
+  const today = new Date().toDateString();
+  const lastDate = state.lastPlayed ? new Date(state.lastPlayed).toDateString() : null;
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  if (lastDate !== today) {
+    if (lastDate === yesterday) state.streak++;
+    else state.streak = 1;
+    state.lastPlayed = Date.now();
+  }
+  saveState();
+}
+
+// ==========================================================
+// RESULT SCREEN
+// ==========================================================
+function renderResult() {
+  const gs = state.gameState;
+  let emoji, title, msg;
+
+  if (gs.isFlashcard) {
+    emoji = '📚'; title = '잘했어!'; msg = `${gs.correct}개 단어를 쭉 봤어. 이제 퀴즈로 실력을 확인해보자!`;
+  } else {
+    const pct = gs.correct / gs.total;
+    if (gs.perfect || pct === 1) { emoji = '🏆'; title = '완벽해!!!'; msg = '전부 다 맞혔어! 넌 진짜 영어 천재야!'; }
+    else if (pct >= 0.75) { emoji = '🌟'; title = '훌륭해!'; msg = '거의 다 맞혔어! 조금만 더 해보자!'; }
+    else if (pct >= 0.5) { emoji = '💪'; title = '잘하고 있어!'; msg = '점점 좋아지고 있어. 계속 해보자!'; }
+    else { emoji = '🌱'; title = '괜찮아!'; msg = '처음엔 누구나 어려워. 다시 해보면 더 잘할 거야!'; }
+  }
+
+  return `
+    ${renderHeader()}
+    <div class="card">
+      <div class="result-hero">
+        <div class="result-emoji">${emoji}</div>
+        <div class="result-title">${title}</div>
+        <div class="result-sub">${msg}</div>
+      </div>
+
+      <div class="result-stats">
+        ${gs.isFlashcard ? `
+          <div class="stat-box">
+            <div class="stat-num">${gs.correct}</div>
+            <div class="stat-label">본 단어</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">+${gs.xpGained}</div>
+            <div class="stat-label">경험치</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">🔥${state.streak}</div>
+            <div class="stat-label">연속일</div>
+          </div>
+        ` : `
+          <div class="stat-box">
+            <div class="stat-num">${gs.correct}/${gs.total}</div>
+            <div class="stat-label">정답</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">+${gs.xpGained}</div>
+            <div class="stat-label">경험치</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">${Math.round(gs.correct/gs.total*100)}%</div>
+            <div class="stat-label">정답률</div>
+          </div>
+        `}
+      </div>
+
+      <div class="controls-row" style="justify-content: center;">
+        <button class="btn btn-accent" onclick="backToMode()">🔁 한번 더</button>
+        <button class="btn btn-primary" onclick="goHome()">🏠 처음으로</button>
+      </div>
+    </div>
+  `;
+}
+
+// ==========================================================
+// NAVIGATION
+// ==========================================================
+async function startGame() {
+  const input = document.getElementById('nameInput').value.trim();
+  if (!input) {
+    alert('이름을 입력해줄래? 😊');
+    return;
+  }
+  state.name = input;
+  state.screen = 'home';
+  await saveState();
+  playSound('welcome');
+  render();
+}
+
+function selectCategory(key) {
+  state.currentCategory = key;
+  state.screen = 'modeSelect';
+  playSound('category');
+  render();
+}
+
+function startMode(mode) {
+  state.currentMode = mode;
+  playSound('gameStart');
+  if (mode === 'flashcard') startFlashcard();
+  else if (mode === 'matching') startMatching();
+  else startQuiz(mode);
+}
+
+function goHome() {
+  state.currentCategory = null;
+  state.currentMode = null;
+  state.gameState = null;
+  state.screen = 'home';
+  playSound('back');
+  render();
+}
+
+function backToMode() {
+  state.gameState = null;
+  state.screen = 'modeSelect';
+  playSound('back');
+  render();
+}
+
+// ==========================================================
+// MAIN RENDER
+// ==========================================================
+function render() {
+  const app = document.getElementById('app');
+  let html = '';
+  switch (state.screen) {
+    case 'welcome': html = renderWelcome(); break;
+    case 'home': html = renderHome(); break;
+    case 'modeSelect': html = renderModeSelect(); break;
+    case 'flashcard': html = renderFlashcard(); break;
+    case 'meaning': html = renderMeaningQuiz(); break;
+    case 'word': html = renderWordQuiz(); break;
+    case 'spelling': html = renderSpelling(); break;
+    case 'matching': html = renderMatching(); break;
+    case 'result': html = renderResult(); break;
+    default: html = renderWelcome();
+  }
+  app.innerHTML = html;
+
+  // Auto-focus inputs
+  const spellInput = document.getElementById('spellInput');
+  if (spellInput && !state.gameState?.answered) spellInput.focus();
+
+  const nameInput = document.getElementById('nameInput');
+  if (nameInput) {
+    nameInput.focus();
+    nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') startGame(); });
+  }
+}
+
+// ==========================================================
+// INIT
+// ==========================================================
+(async function init() {
+  await loadState();
+  if (state.name) state.screen = 'home';
+  render();
+})();
+</script>
+</body>
+</html>
