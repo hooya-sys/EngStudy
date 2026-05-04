@@ -482,7 +482,8 @@ const MODES = {
   meaning: { name: '뜻 맞추기', desc: '영어 → 한국어 뜻 고르기', emoji: '🎯', color: '#FF8C42' },
   word: { name: '단어 맞추기', desc: '한국어 → 영어 단어 고르기', emoji: '🔤', color: '#2EC4B6' },
   spelling: { name: '스펠링 도전', desc: '단어 직접 써보기', emoji: '✍️', color: '#845EC2' },
-  matching: { name: '짝 맞추기', desc: '영어-한국어 짝 찾기', emoji: '🧩', color: '#FF6F91' }
+  matching: { name: '짝 맞추기', desc: '영어-한국어 짝 찾기', emoji: '🧩', color: '#FF6F91' },
+  wordlist: { name: '단어 목록', desc: '전체 단어와 뜻·발음 한눈에', emoji: '📋', color: '#4CAF50' }
 };
 
 // ==========================================================
@@ -932,7 +933,7 @@ function renderModeSelect() {
           const m = MODES[mk];
           const needsChoices = (mk === 'meaning' || mk === 'word');
           const needsPairs = (mk === 'matching');
-          const disabled = (cat.words.length === 0)
+          const disabled = (mk !== 'wordlist' && cat.words.length === 0)
             || (needsChoices && cat.words.length < 4)
             || (needsPairs && cat.words.length < 2);
           const disabledStyle = disabled ? 'opacity:0.45; cursor:not-allowed;' : '';
@@ -1673,6 +1674,38 @@ function renderResult() {
   `;
 }
 
+function renderWordList() {
+  const cat = VOCAB[state.currentCategory];
+  if (!cat) return '<div class="card">카테고리를 찾을 수 없어요.</div>';
+  const words = cat.words || [];
+
+  return `
+    ${renderHeader()}
+    <div class="card">
+      <button class="btn btn-ghost btn-sm" onclick="backToMode()" style="margin-bottom:14px">← 돌아가기</button>
+      <div style="text-align:center; margin: 8px 0 16px;">
+        <div style="font-size: 60px;">${cat.emoji}</div>
+        <div class="screen-title" style="color: #4CAF50;">📋 단어 목록</div>
+        <div class="screen-sub">${cat.nameKr} · 총 ${words.length}개 단어 · 🔊 버튼을 누르면 발음을 들을 수 있어요</div>
+      </div>
+
+      <div style="border:3px solid var(--navy);border-radius:14px;background:white;overflow:hidden">
+        ${words.length === 0
+          ? '<div style="text-align:center;padding:30px;color:var(--navy-soft)">단어가 없어요. 단어를 추가해 보세요!</div>'
+          : words.map((w, i) => `
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;${i < words.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
+            <div style="flex:1;min-width:0">
+              <div style="font-family:'Fredoka';font-weight:600;font-size:18px;color:var(--navy)">${w.en}</div>
+              <div style="color:var(--navy-soft);font-size:14px;margin-top:2px">${w.ko}</div>
+            </div>
+            <button class="btn btn-icon" onclick="speak('${w.en.replace(/'/g, "\\'")}'); event.stopPropagation();" aria-label="발음 듣기" style="flex-shrink:0">🔊</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
 // ==========================================================
 // NAVIGATION
 // ==========================================================
@@ -1697,6 +1730,11 @@ function selectCategory(key) {
 }
 
 function startMode(mode) {
+  if (mode === 'wordlist') {
+    state.screen = 'wordlist';
+    render();
+    return;
+  }
   state.currentMode = mode;
   playSound('gameStart');
   if (mode === 'flashcard') startFlashcard();
@@ -1736,6 +1774,7 @@ function render() {
     case 'word': html = renderWordQuiz(); break;
     case 'spelling': html = renderSpelling(); break;
     case 'matching': html = renderMatching(); break;
+    case 'wordlist': html = renderWordList(); break;
     case 'result': html = renderResult(); break;
     case 'profile': html = renderProfile(); break;
     case 'admin': html = renderAdmin(); break;
