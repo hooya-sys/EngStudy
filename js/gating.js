@@ -6,12 +6,14 @@ const app = () => document.getElementById('app');
 
 function renderLogin() {
   app().innerHTML = `
-    <div class="card welcome">
-      <div class="welcome-emoji">🦁</div>
-      <h1>영어 단어 모험</h1>
-      <p>구글 계정으로 로그인하면 어디서든 진도가 이어져요!</p>
-      <div style="margin-top:24px">
-        <button class="btn btn-primary btn-lg" id="loginBtn">🔐 Google로 로그인</button>
+    <div style="min-height:calc(100vh - 40px);display:flex;align-items:center;justify-content:center">
+      <div class="card welcome" style="width:100%;max-width:440px">
+        <div class="welcome-emoji">🦁</div>
+        <h1>영어 단어 모험</h1>
+        <p>구글 계정으로 로그인하면 어디서든 진도가 이어져요!</p>
+        <div style="margin-top:24px">
+          <button class="btn btn-primary btn-lg" id="loginBtn">🔐 Google로 로그인</button>
+        </div>
       </div>
     </div>
   `;
@@ -28,12 +30,14 @@ function renderLogin() {
 
 function renderPending() {
   app().innerHTML = `
-    <div class="card welcome">
-      <div class="welcome-emoji">⏳</div>
-      <h1>승인 대기 중</h1>
-      <p>관리자가 가입을 검토하고 있어요.<br>승인되면 바로 학습을 시작할 수 있어요!</p>
-      <div style="margin-top:24px">
-        <button class="btn btn-secondary" id="logoutBtn">로그아웃</button>
+    <div style="min-height:calc(100vh - 40px);display:flex;align-items:center;justify-content:center">
+      <div class="card welcome" style="width:100%;max-width:440px">
+        <div class="welcome-emoji">⏳</div>
+        <h1>승인 대기 중</h1>
+        <p>관리자가 가입을 검토하고 있어요.<br>승인되면 바로 학습을 시작할 수 있어요!</p>
+        <div style="margin-top:24px">
+          <button class="btn btn-secondary" id="logoutBtn">로그아웃</button>
+        </div>
       </div>
     </div>
   `;
@@ -42,12 +46,14 @@ function renderPending() {
 
 function renderBlocked() {
   app().innerHTML = `
-    <div class="card welcome">
-      <div class="welcome-emoji">🚫</div>
-      <h1>이용이 제한되었어요</h1>
-      <p>이 계정은 관리자에 의해 차단되었습니다.<br>문의가 필요하면 관리자에게 연락해 주세요.</p>
-      <div style="margin-top:24px">
-        <button class="btn btn-secondary" id="logoutBtn">로그아웃</button>
+    <div style="min-height:calc(100vh - 40px);display:flex;align-items:center;justify-content:center">
+      <div class="card welcome" style="width:100%;max-width:440px">
+        <div class="welcome-emoji">🚫</div>
+        <h1>이용이 제한되었어요</h1>
+        <p>이 계정은 관리자에 의해 차단되었습니다.<br>문의가 필요하면 관리자에게 연락해 주세요.</p>
+        <div style="margin-top:24px">
+          <button class="btn btn-secondary" id="logoutBtn">로그아웃</button>
+        </div>
       </div>
     </div>
   `;
