@@ -1008,6 +1008,7 @@ function renderCustomManage() {
       <div class="custom-form" onsubmit="return false;">
         <input type="text" class="custom-input" id="customEnInput" placeholder="English (예: apple)" maxlength="40" autocomplete="off" spellcheck="false">
         <input type="text" class="custom-input" id="customKoInput" placeholder="뜻 (예: 사과)" maxlength="60" autocomplete="off">
+        <button class="btn btn-secondary" id="translateBtn" type="button">🌐 번역</button>
         <button class="btn btn-primary" onclick="addCustomWord()">+ 추가</button>
       </div>
 
@@ -1817,35 +1818,38 @@ function render() {
   const customEn = document.getElementById('customEnInput');
   const customKo = document.getElementById('customKoInput');
   if (customEn && customKo) {
-    const fillKoIfEmpty = async () => {
-      const en = customEn.value.trim();
-      if (!en) return;
-      if (customKo.value.trim()) return; // 사용자가 이미 입력했으면 덮어쓰지 않음
-      const original = customKo.placeholder;
-      customKo.placeholder = '번역 중...';
-      const translated = await autoTranslate(en);
-      customKo.placeholder = original;
-      if (translated && !customKo.value.trim()) {
-        customKo.value = translated;
-      }
-    };
-
     const onKey = e => {
       if (e.key === 'Enter' && !e.isComposing) {
         e.preventDefault();
-        if (e.target === customEn && !customKo.value.trim()) {
-          customKo.focus();
-          fillKoIfEmpty();  // Enter로 다음 필드 가면서 자동 번역 시도
-        } else {
-          addCustomWord();
-        }
+        if (e.target === customEn && !customKo.value.trim()) customKo.focus();
+        else addCustomWord();
       }
     };
     customEn.addEventListener('keydown', onKey);
     customKo.addEventListener('keydown', onKey);
+  }
 
-    // 영어 입력 후 포커스 이동(blur) 시에도 자동 번역 시도
-    customEn.addEventListener('blur', fillKoIfEmpty);
+  const translateBtn = document.getElementById('translateBtn');
+  if (translateBtn && customEn && customKo) {
+    translateBtn.addEventListener('click', async () => {
+      const en = customEn.value.trim();
+      if (!en) {
+        customEn.focus();
+        return;
+      }
+      const original = translateBtn.textContent;
+      translateBtn.disabled = true;
+      translateBtn.textContent = '번역 중...';
+      const translated = await autoTranslate(en);
+      translateBtn.textContent = original;
+      translateBtn.disabled = false;
+      if (translated) {
+        customKo.value = translated;
+        customKo.focus();
+      } else {
+        alert('번역을 가져올 수 없어요. 직접 입력해 주세요.');
+      }
+    });
   }
 
   const avatarBtn = document.getElementById('avatarBtn');
