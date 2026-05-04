@@ -59,7 +59,7 @@ function renderModal() {
   const isSelf = m.uid === currentUser.uid;
   return `
     <div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000" id="modalOverlay">
-      <div class="card" style="max-width:480px;width:90%;max-height:80vh;overflow-y:auto" onclick="event.stopPropagation()">
+      <div class="card" style="max-width:480px;width:90%;max-height:80vh;overflow-y:auto">
         <div style="font-family:'Fredoka';font-size:18px;font-weight:600;margin-bottom:6px">${m.displayName} ${isSelf ? '(나)' : ''}</div>
         <div style="color:var(--navy-soft);font-size:13px;margin-bottom:14px">${m.email} · ${m.role === 'admin' ? '🛡️ 관리자' : '회원'} · ${m.status}</div>
 
