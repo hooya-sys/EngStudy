@@ -9,11 +9,13 @@ export let currentUser = null;     // Firebase User 객체
 export let currentProfile = null;  // users/{uid} 문서 데이터
 
 const listeners = new Set();
+let authResolved = false; // true once Firebase has determined initial auth state
 
 // 인증 상태 변화 콜백 등록. unsubscribe 함수 반환.
 export function onAuthChange(cb) {
   listeners.add(cb);
-  cb(currentUser, currentProfile);
+  // 인증 상태가 한 번이라도 결정된 후에만 즉시 콜백 호출. 그 전에는 첫 onAuthStateChanged가 알림을 띄움.
+  if (authResolved) cb(currentUser, currentProfile);
   return () => listeners.delete(cb);
 }
 
@@ -78,6 +80,7 @@ onAuthStateChanged(auth, async (user) => {
     currentUser = null;
     currentProfile = null;
   }
+  authResolved = true;
   notify();
 });
 

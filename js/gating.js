@@ -63,6 +63,15 @@ function renderBlocked() {
 // onApproved 콜백: 인증 + 승인 통과 시 호출. 호출자가 게임 부팅 담당.
 // onLoggedOut: 인증 잃었을 때 호출 (정리용).
 export function startGating({ onApproved, onLoggedOut }) {
+  // Firebase Auth가 IndexedDB에서 인증 상태를 복원하는 사이 화면이 비지 않도록 로딩 표시
+  app().innerHTML = `
+    <div style="min-height:calc(100vh - 40px);display:flex;align-items:center;justify-content:center">
+      <div class="card welcome" style="width:100%;max-width:440px">
+        <div class="welcome-emoji">🦁</div>
+        <p>로딩 중...</p>
+      </div>
+    </div>
+  `;
   onAuthChange((user, profile) => {
     if (!user) {
       onLoggedOut?.();
@@ -71,7 +80,14 @@ export function startGating({ onApproved, onLoggedOut }) {
     }
     if (!profile) {
       // 로딩 중 또는 에러 — 잠시 후 다시 알림 옴
-      app().innerHTML = `<div class="card welcome"><p>로딩 중...</p></div>`;
+      app().innerHTML = `
+        <div style="min-height:calc(100vh - 40px);display:flex;align-items:center;justify-content:center">
+          <div class="card welcome" style="width:100%;max-width:440px">
+            <div class="welcome-emoji">🦁</div>
+            <p>로딩 중...</p>
+          </div>
+        </div>
+      `;
       return;
     }
     if (profile.status === 'pending') { renderPending(); return; }
@@ -81,6 +97,12 @@ export function startGating({ onApproved, onLoggedOut }) {
       return;
     }
     // 알 수 없는 상태
-    app().innerHTML = `<div class="card welcome"><p>알 수 없는 상태입니다. 다시 로그인해 주세요.</p></div>`;
+    app().innerHTML = `
+      <div style="min-height:calc(100vh - 40px);display:flex;align-items:center;justify-content:center">
+        <div class="card welcome" style="width:100%;max-width:440px">
+          <p>알 수 없는 상태입니다. 다시 로그인해 주세요.</p>
+        </div>
+      </div>
+    `;
   });
 }
