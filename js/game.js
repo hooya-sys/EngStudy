@@ -478,12 +478,12 @@ const QUESTIONS_PER_ROUND = 8;
 // GAME MODES
 // ==========================================================
 const MODES = {
+  wordlist: { name: '단어 목록', desc: '전체 단어와 뜻·발음 한눈에', emoji: '📋', color: '#4CAF50' },
   flashcard: { name: '단어 카드', desc: '카드 넘기며 단어 익히기', emoji: '🎴', color: '#FFC857' },
   meaning: { name: '뜻 맞추기', desc: '영어 → 한국어 뜻 고르기', emoji: '🎯', color: '#FF8C42' },
   word: { name: '단어 맞추기', desc: '한국어 → 영어 단어 고르기', emoji: '🔤', color: '#2EC4B6' },
-  spelling: { name: '스펠링 도전', desc: '단어 직접 써보기', emoji: '✍️', color: '#845EC2' },
   matching: { name: '짝 맞추기', desc: '영어-한국어 짝 찾기', emoji: '🧩', color: '#FF6F91' },
-  wordlist: { name: '단어 목록', desc: '전체 단어와 뜻·발음 한눈에', emoji: '📋', color: '#4CAF50' }
+  spelling: { name: '스펠링 도전', desc: '단어 직접 써보기', emoji: '✍️', color: '#845EC2' }
 };
 
 // ==========================================================
@@ -929,7 +929,7 @@ function renderModeSelect() {
       </div>
       <div style="font-family: 'Fredoka'; font-weight: 600; color: var(--navy); margin-bottom: 10px;">어떤 게임으로 공부할까?</div>
       <div class="modes">
-        ${Object.keys(MODES).map(mk => {
+        ${Object.keys(MODES).map((mk, idx) => {
           const m = MODES[mk];
           const needsChoices = (mk === 'meaning' || mk === 'word');
           const needsPairs = (mk === 'matching');
@@ -947,7 +947,8 @@ function renderModeSelect() {
             : '';
           const onClick = disabled ? '' : `onclick="startMode('${mk}')"`;
           return `
-            <div class="mode-card" ${onClick} style="${disabledStyle}">
+            <div class="mode-card" ${onClick} style="position:relative;${disabledStyle}">
+              <div style="position:absolute;top:8px;left:8px;width:28px;height:28px;border-radius:50%;background:white;color:var(--navy);border:2px solid var(--navy);display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:700;font-size:14px;line-height:1">${idx + 1}</div>
               <div class="mode-icon" style="background: ${m.color};">${m.emoji}</div>
               <div>
                 <div class="mode-title">${m.name}</div>
