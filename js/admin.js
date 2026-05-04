@@ -175,24 +175,32 @@ export function bindAdminHandlers() {
     });
   });
 
-  // 행 클릭 → 모달 열기
-  document.querySelectorAll('.member-row').forEach(row => {
-    row.addEventListener('click', () => {
+  // 이벤트 위임 — refreshList가 비동기로 채우는 .member-row가 클릭 시점에 존재하지 않을 수 있어 부모에 리스너 단다
+  const memberListEl = document.getElementById('memberList');
+  if (memberListEl) {
+    memberListEl.addEventListener('click', (e) => {
+      const row = e.target.closest('.member-row');
+      if (!row) return;
       viewState.modalUid = row.dataset.uid;
       gameRender();
       loadModalProgress(viewState.modalUid);
     });
+  }
+
+  // 모달 외부 클릭 = 닫기 (오버레이 자체 클릭만, 내부 카드 클릭은 stopPropagation으로 차단됨)
+  document.getElementById('modalOverlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'modalOverlay') {
+      viewState.modalUid = null;
+      gameRender();
+    }
   });
 
-  // 모달 외부 클릭 = 닫기
-  document.getElementById('modalOverlay')?.addEventListener('click', () => {
-    viewState.modalUid = null;
-    gameRender();
-  });
-
-  // 모달 액션 버튼
-  document.querySelectorAll('[data-action]').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
+  // 모달 액션 버튼: 위임 — 모달이 동적으로 렌더된 직후라도 작동
+  if (memberListEl) {
+    const adminCardEl = memberListEl.closest('.card');
+    adminCardEl?.addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
       e.stopPropagation();
       const action = btn.dataset.action;
       const uid = btn.dataset.uid;
@@ -203,7 +211,7 @@ export function bindAdminHandlers() {
       }
       await performAction(action, uid);
     });
-  });
+  }
 
   // 첫 진입 시 목록 로드
   if (!viewState.members.length || document.getElementById('memberList')?.textContent === '불러오는 중...') {
