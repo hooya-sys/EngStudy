@@ -1696,7 +1696,7 @@ function renderWordList() {
             ${words.map(w => `
               <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:2px solid var(--navy);border-radius:12px;background:white">
                 <div style="flex:1;min-width:0">
-                  <div style="font-family:'Fredoka';font-weight:600;font-size:17px;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.en}</div>
+                  <div style="font-family:'Fredoka';font-weight:600;font-size:26px;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.en}</div>
                   <div style="color:var(--navy-soft);font-size:13px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.ko}</div>
                 </div>
                 <button class="btn btn-icon" onclick="speak('${w.en.replace(/'/g, "\\'")}'); event.stopPropagation();" aria-label="발음 듣기" style="flex-shrink:0">🔊</button>
