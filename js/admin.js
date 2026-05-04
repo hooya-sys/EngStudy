@@ -16,6 +16,8 @@ let viewState = {
   modalUid: null           // 상세 모달이 열린 회원 uid (null이면 닫힘)
 };
 
+let appDelegationAttached = false;
+
 async function fetchMembers(tab) {
   const usersRef = collection(db, 'users');
   const q = tab === 'pending' ? query(usersRef, where('status', '==', 'pending')) : usersRef;
@@ -48,8 +50,8 @@ export function renderAdmin() {
       </div>
 
       <div id="memberList">불러오는 중...</div>
-      ${viewState.modalUid ? renderModal() : ''}
     </div>
+    ${viewState.modalUid ? renderModal() : ''}
   `;
 }
 
@@ -195,12 +197,13 @@ export function bindAdminHandlers() {
     }
   });
 
-  // 모달 액션 버튼: 위임 — 모달이 동적으로 렌더된 직후라도 작동
-  if (memberListEl) {
-    const adminCardEl = memberListEl.closest('.card');
-    adminCardEl?.addEventListener('click', async (e) => {
+  // 모달 액션 버튼: 위임 (#app은 재생성되지 않으므로 한 번만 부착)
+  if (!appDelegationAttached) {
+    appDelegationAttached = true;
+    document.getElementById('app')?.addEventListener('click', async (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
+      if (gameState.screen !== 'admin') return;
       e.stopPropagation();
       const action = btn.dataset.action;
       const uid = btn.dataset.uid;
