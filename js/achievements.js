@@ -306,6 +306,36 @@ function showAchievementToast(a) {
 })();
 
 // ============================================================
+// 업적 초기화 — Firestore의 achievements + counters 모두 삭제, 런타임 상태도 리셋
+// ============================================================
+export async function resetAchievements() {
+  if (!currentUser) return;
+  const earnedCount = Object.keys(currentProfile?.achievements || {}).length;
+  const message = earnedCount === 0
+    ? '아직 달성한 업적이 없지만 카운터(발음 들은 횟수 등)도 함께 초기화할까요?'
+    : `달성한 ${earnedCount}개 업적을 모두 초기화하고 처음부터 다시 도전할까요?\n\n⚠️ 이 작업은 되돌릴 수 없어요.`;
+  if (!confirm(message)) return;
+  try {
+    await updateDoc(doc(db, 'users', currentUser.uid), {
+      achievements: {},
+      counters: {}
+    });
+    if (currentProfile) {
+      currentProfile.achievements = {};
+      currentProfile.counters = {};
+    }
+    runtime.comboCount = 0;
+    runtime.lastWasWrong = false;
+    runtime.comebackCount = 0;
+    runtime.fastAnswers = 0;
+    alert('업적이 초기화되었어요. 처음부터 다시 도전해 봐요!');
+    gameRender();
+  } catch (e) {
+    alert('초기화 중 오류: ' + e.message);
+  }
+}
+
+// ============================================================
 // 업적 페이지
 // ============================================================
 export function renderAchievementsPage() {
@@ -344,6 +374,11 @@ export function renderAchievementsPage() {
           </div>
         `).join('')}
       </div>
+
+      <div style="margin-top:24px;border:3px solid var(--danger);border-radius:14px;padding:14px;background:#FFF0F0;text-align:center">
+        <div style="font-weight:700;color:var(--danger);margin-bottom:10px">⚠️ 위험 작업</div>
+        <button class="btn" id="resetAchievementsBtn" style="background:var(--danger);color:white">🗑 업적 초기화</button>
+      </div>
     </div>
   `;
 }
@@ -353,4 +388,5 @@ export function bindAchievementsHandlers() {
     gameState.screen = 'profile';
     gameRender();
   });
+  document.getElementById('resetAchievementsBtn')?.addEventListener('click', resetAchievements);
 }
