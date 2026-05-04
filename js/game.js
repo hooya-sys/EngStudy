@@ -553,6 +553,26 @@ function shuffle(arr) {
   return a;
 }
 
+// 영어 → 한국어 자동 번역 (MyMemory API, 무료, 키 불필요)
+async function autoTranslate(en) {
+  if (!en || !en.trim()) return null;
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(en.trim())}&langpair=en|ko`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.responseStatus !== 200) return null;
+    const translated = data.responseData?.translatedText;
+    if (!translated) return null;
+    // MyMemory가 가끔 영어 그대로 반환하거나 매치 못 찾으면 안내 문자열을 줌 — 한글이 포함됐는지로 필터
+    if (!/[가-힯]/.test(translated)) return null;
+    return translated.trim();
+  } catch (e) {
+    console.warn('Translation failed', e);
+    return null;
+  }
+}
+
 function speak(text) {
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
@@ -1797,15 +1817,35 @@ function render() {
   const customEn = document.getElementById('customEnInput');
   const customKo = document.getElementById('customKoInput');
   if (customEn && customKo) {
+    const fillKoIfEmpty = async () => {
+      const en = customEn.value.trim();
+      if (!en) return;
+      if (customKo.value.trim()) return; // 사용자가 이미 입력했으면 덮어쓰지 않음
+      const original = customKo.placeholder;
+      customKo.placeholder = '번역 중...';
+      const translated = await autoTranslate(en);
+      customKo.placeholder = original;
+      if (translated && !customKo.value.trim()) {
+        customKo.value = translated;
+      }
+    };
+
     const onKey = e => {
       if (e.key === 'Enter' && !e.isComposing) {
         e.preventDefault();
-        if (e.target === customEn && !customKo.value.trim()) customKo.focus();
-        else addCustomWord();
+        if (e.target === customEn && !customKo.value.trim()) {
+          customKo.focus();
+          fillKoIfEmpty();  // Enter로 다음 필드 가면서 자동 번역 시도
+        } else {
+          addCustomWord();
+        }
       }
     };
     customEn.addEventListener('keydown', onKey);
     customKo.addEventListener('keydown', onKey);
+
+    // 영어 입력 후 포커스 이동(blur) 시에도 자동 번역 시도
+    customEn.addEventListener('blur', fillKoIfEmpty);
   }
 
   const avatarBtn = document.getElementById('avatarBtn');
