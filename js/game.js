@@ -861,6 +861,7 @@ function renderHeader() {
         <div class="xp-text">${xpInLevel} / ${XP_PER_LEVEL} XP</div>
       </div>
       <button class="btn btn-icon" onclick="toggleSound()" title="${soundEnabled ? '소리 끄기' : '소리 켜기'}">${soundEnabled ? '🔊' : '🔇'}</button>
+      <button class="btn btn-icon" id="achievementsBtn" title="나의 업적">🏆</button>
       ${isAdmin ? `<button class="btn btn-icon" id="adminBtn" title="회원관리">🛡️</button>` : ''}
       <button class="btn btn-icon" id="logoutBtn" title="로그아웃">🚪</button>
     </div>
@@ -1890,6 +1891,12 @@ function render() {
   const avatarBtn = document.getElementById('avatarBtn');
   if (avatarBtn) avatarBtn.addEventListener('click', () => {
     state.screen = 'profile';
+    render();
+  });
+
+  const achievementsBtn = document.getElementById('achievementsBtn');
+  if (achievementsBtn) achievementsBtn.addEventListener('click', () => {
+    state.screen = 'achievements';
     render();
   });
 
