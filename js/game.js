@@ -1,4 +1,5 @@
 import { loadState as _loadState, saveState as _saveState, loadCustomWords as _loadCustomWords, saveCustomWords as _saveCustomWords } from './store.js';
+import { currentUser, currentProfile, logout } from './auth.js';
 // ==========================================================
 // VOCABULARY DATA - 교육부 초등 필수 영단어 (주제별)
 // ==========================================================
@@ -812,24 +813,28 @@ function closeLevelUp() {
 // HEADER
 // ==========================================================
 function renderHeader() {
-  if (!state.name) return '';
   const xpInLevel = state.xp % XP_PER_LEVEL;
   const xpPct = (xpInLevel / XP_PER_LEVEL) * 100;
+  const isAdmin = currentProfile?.role === 'admin';
+  const photo = currentUser?.photoURL;
+  const avatarHtml = photo
+    ? `<img src="${photo}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
+    : `🦁`;
+
   return `
     <div class="header">
-      <div class="avatar">🦁</div>
+      <div class="avatar" id="avatarBtn" style="cursor:pointer" title="내 정보">${avatarHtml}</div>
       <div class="user-info">
-        <div class="user-name">${state.name}</div>
-        <div class="user-level">Lv.${state.level} 영어 탐험가</div>
+        <div class="user-name">${state.name || '친구'}</div>
+        <div class="user-level">Lv.${state.level} · 🔥 ${state.streak}일</div>
       </div>
       <div class="xp-container">
         <div class="xp-bar"><div class="xp-fill" style="width:${xpPct}%"></div></div>
-        <div class="xp-text">⚡ ${xpInLevel} / ${XP_PER_LEVEL} XP · 총 ${state.xp}</div>
+        <div class="xp-text">${xpInLevel} / ${XP_PER_LEVEL} XP</div>
       </div>
-      <div class="streak">🔥 ${state.streak}일</div>
-      <button class="sound-toggle" onclick="toggleSound()" title="소리 켜기/끄기">
-        ${soundEnabled ? '🔊' : '🔇'}
-      </button>
+      <button class="btn btn-icon" onclick="toggleSound()" title="${soundEnabled ? '소리 끄기' : '소리 켜기'}">${soundEnabled ? '🔊' : '🔇'}</button>
+      ${isAdmin ? `<button class="btn btn-icon" id="adminBtn" title="회원관리">🛡️</button>` : ''}
+      <button class="btn btn-icon" id="logoutBtn" title="로그아웃">🚪</button>
     </div>
   `;
 }
@@ -1730,6 +1735,8 @@ function render() {
     case 'spelling': html = renderSpelling(); break;
     case 'matching': html = renderMatching(); break;
     case 'result': html = renderResult(); break;
+    case 'profile': html = '<div class="card">프로필 화면 준비 중...</div>'; break;
+    case 'admin': html = '<div class="card">어드민 화면 준비 중...</div>'; break;
     default: html = renderWelcome();
   }
   app.innerHTML = html;
@@ -1757,6 +1764,23 @@ function render() {
     customEn.addEventListener('keydown', onKey);
     customKo.addEventListener('keydown', onKey);
   }
+
+  const avatarBtn = document.getElementById('avatarBtn');
+  if (avatarBtn) avatarBtn.addEventListener('click', () => {
+    state.screen = 'profile';
+    render();
+  });
+
+  const adminBtn = document.getElementById('adminBtn');
+  if (adminBtn) adminBtn.addEventListener('click', () => {
+    state.screen = 'admin';
+    render();
+  });
+
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) logoutBtn.addEventListener('click', async () => {
+    await logout();
+  });
 }
 
 // ==========================================================
