@@ -59,12 +59,13 @@ function renderModal() {
   const m = viewState.members.find(x => x.uid === viewState.modalUid);
   if (!m) return '';
   const isSelf = m.uid === currentUser.uid;
+  const created = m.createdAt?.toDate ? m.createdAt.toDate().toLocaleDateString('ko-KR') : '-';
   return `
     <div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000" id="modalOverlay">
       <div class="card" style="position:relative;max-width:480px;width:90%;max-height:80vh;overflow-y:auto">
         <button data-action="close" aria-label="닫기" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;border:2px solid var(--navy);background:white;color:var(--navy);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0">✕</button>
         <div style="font-family:'Fredoka';font-size:18px;font-weight:600;margin-bottom:6px;padding-right:36px">${m.displayName} ${isSelf ? '(나)' : ''}</div>
-        <div style="color:var(--navy-soft);font-size:13px;margin-bottom:14px">${m.email} · ${m.role === 'admin' ? '🛡️ 관리자' : '회원'} · ${m.status}</div>
+        <div style="color:var(--navy-soft);font-size:13px;margin-bottom:14px">${m.email} · ${m.role === 'admin' ? '🛡️ 관리자' : '회원'} · ${m.status}<br>가입일: ${created}</div>
 
         <div id="modalProgress" style="margin-bottom:14px;font-size:13px;color:var(--navy-soft)">진도 불러오는 중...</div>
 
