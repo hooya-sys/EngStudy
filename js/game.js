@@ -2,6 +2,7 @@ import { loadState as _loadState, saveState as _saveState, loadCustomWords as _l
 import { currentUser, currentProfile, logout } from './auth.js';
 import { renderProfile, bindProfileHandlers } from './profile.js';
 import { renderAdmin, bindAdminHandlers, resetAdminView } from './admin.js';
+import { trackEvent, renderAchievementsPage, bindAchievementsHandlers } from './achievements.js';
 // ==========================================================
 // VOCABULARY DATA - 교육부 초등 필수 영단어 (주제별)
 // ==========================================================
@@ -528,6 +529,8 @@ async function saveState() {
     soundEnabled: soundEnabled
   };
   await _saveState(toSave);
+  trackEvent('mastered');
+  trackEvent('streak');
 }
 
 async function loadCustomWords() {
@@ -581,6 +584,7 @@ function speak(text) {
   u.rate = 0.85;
   u.pitch = 1.1;
   window.speechSynthesis.speak(u);
+  trackEvent('speak');
 }
 
 function confetti() {
@@ -817,6 +821,7 @@ function addXP(amount) {
     state.level = newLevel;
     showLevelUp(newLevel);
   }
+  trackEvent('level');
   saveState();
 }
 
@@ -1072,6 +1077,7 @@ async function addCustomWord() {
   VOCAB.custom.words.push({ en, ko });
   await saveCustomWords();
   playSound('correct');
+  trackEvent('custom_added');
   render();
   setTimeout(() => {
     const newEn = document.getElementById('customEnInput');
@@ -1280,8 +1286,10 @@ function answerMeaning(i) {
     gs.correct++;
     playSound('correct');
     markMastered(state.currentCategory, word.en);
+    trackEvent('correct');
   } else {
     playSound('wrong');
+    trackEvent('wrong');
   }
   render();
 }
@@ -1351,8 +1359,10 @@ function answerWord(i) {
     gs.correct++;
     playSound('correct');
     markMastered(state.currentCategory, word.en);
+    trackEvent('correct');
   } else {
     playSound('wrong');
+    trackEvent('wrong');
   }
   if (isCorrect) setTimeout(() => speak(word.en), 200);
   render();
@@ -1465,8 +1475,10 @@ function checkSpelling() {
     playSound('correct');
     markMastered(state.currentCategory, word.en);
     setTimeout(() => speak(word.en), 200);
+    trackEvent('correct');
   } else {
     playSound('wrong');
+    trackEvent('wrong');
   }
   render();
 }
@@ -1574,6 +1586,7 @@ function selectTile(id) {
     gs.mistakes++;
     gs.wrongPair = [gs.selected.id, tile.id];
     playSound('wrong');
+    trackEvent('wrong');
     render();
     setTimeout(() => {
       gs.selected = null;
@@ -1652,6 +1665,10 @@ function updateStreak() {
 // ==========================================================
 function renderResult() {
   const gs = state.gameState;
+  // 업적 추적
+  if (!gs.isFlashcard && typeof gs.correct === 'number' && typeof gs.total === 'number') {
+    trackEvent('round_end', { correct: gs.correct, total: gs.total, mode: state.currentMode });
+  }
   let emoji, title, msg;
 
   if (gs.isFlashcard) {
@@ -1768,6 +1785,7 @@ function selectCategory(key) {
 }
 
 function startMode(mode) {
+  trackEvent('mode_used', mode);
   if (mode === 'wordlist') {
     state.screen = 'wordlist';
     render();
@@ -1816,6 +1834,7 @@ function render() {
     case 'result': html = renderResult(); break;
     case 'profile': html = renderProfile(); break;
     case 'admin': html = renderAdmin(); break;
+    case 'achievements': html = renderAchievementsPage(); break;
     default: html = renderWelcome();
   }
   app.innerHTML = html;
@@ -1861,6 +1880,7 @@ function render() {
       if (translated) {
         customKo.value = translated;
         customKo.focus();
+        trackEvent('translate');
       } else {
         alert('번역을 가져올 수 없어요. 직접 입력해 주세요.');
       }
@@ -1886,6 +1906,7 @@ function render() {
   });
   if (state.screen === 'profile') bindProfileHandlers();
   if (state.screen === 'admin') bindAdminHandlers();
+  if (state.screen === 'achievements') bindAchievementsHandlers();
 }
 
 // ==========================================================

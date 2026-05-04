@@ -65,6 +65,10 @@ export function renderProfile() {
         </div>
       </div>
 
+      <div style="margin-bottom:18px">
+        <button class="btn btn-primary btn-lg" id="goAchievementsBtn" style="width:100%">🏆 나의 업적 보기</button>
+      </div>
+
       <div style="border:3px solid var(--danger);border-radius:14px;padding:14px;background:#FFF0F0">
         <div style="font-weight:700;color:var(--danger);margin-bottom:10px">⚠️ 위험 작업</div>
         <button class="btn btn-secondary" id="resetProgressBtn" style="margin-right:8px">진도 초기화</button>
@@ -77,6 +81,11 @@ export function renderProfile() {
 export function bindProfileHandlers() {
   document.getElementById('profileBackBtn')?.addEventListener('click', () => {
     gameState.screen = 'home';
+    gameRender();
+  });
+
+  document.getElementById('goAchievementsBtn')?.addEventListener('click', () => {
+    gameState.screen = 'achievements';
     gameRender();
   });
 

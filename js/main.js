@@ -3,12 +3,14 @@ import './firebase-init.js';  // side-effect import: Firebase 앱 초기화 트�
 import { startGating } from './gating.js';
 import { bootGame } from './game.js';
 import { setStoreContext } from './store.js';
+import { initAchievements } from './achievements.js';
 
 let bootstrapped = false;
 
 startGating({
   onApproved: async (user, profile) => {
     setStoreContext({ uid: user.uid });
+    initAchievements();
     if (!bootstrapped) {
       bootstrapped = true;
       await bootGame();
