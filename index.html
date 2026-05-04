@@ -592,6 +592,10 @@
     text-transform: lowercase;
     color: var(--navy);
   }
+  .spell-input::placeholder {
+    color: rgba(42, 53, 88, 0.35);
+    font-weight: 500;
+  }
   .spell-input:focus { transform: translateY(-2px); box-shadow: 0 7px 0 var(--navy); }
   .spell-input.correct { background: #E8F5E9; border-color: var(--success); }
   .spell-input.wrong { background: #FFEBEE; border-color: var(--danger); animation: shake 0.5s; }
