@@ -61,8 +61,9 @@ function renderModal() {
   const isSelf = m.uid === currentUser.uid;
   return `
     <div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000" id="modalOverlay">
-      <div class="card" style="max-width:480px;width:90%;max-height:80vh;overflow-y:auto">
-        <div style="font-family:'Fredoka';font-size:18px;font-weight:600;margin-bottom:6px">${m.displayName} ${isSelf ? '(나)' : ''}</div>
+      <div class="card" style="position:relative;max-width:480px;width:90%;max-height:80vh;overflow-y:auto">
+        <button data-action="close" aria-label="닫기" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;border:2px solid var(--navy);background:white;color:var(--navy);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0">✕</button>
+        <div style="font-family:'Fredoka';font-size:18px;font-weight:600;margin-bottom:6px;padding-right:36px">${m.displayName} ${isSelf ? '(나)' : ''}</div>
         <div style="color:var(--navy-soft);font-size:13px;margin-bottom:14px">${m.email} · ${m.role === 'admin' ? '🛡️ 관리자' : '회원'} · ${m.status}</div>
 
         <div id="modalProgress" style="margin-bottom:14px;font-size:13px;color:var(--navy-soft)">진도 불러오는 중...</div>
@@ -74,7 +75,6 @@ function renderModal() {
           ${m.status === 'blocked' ? `<button class="btn btn-primary" data-action="unblock" data-uid="${m.uid}">🔓 차단 해제</button>` : ''}
           ${m.status !== 'pending' ? `<button class="btn btn-secondary" data-action="toggleRole" data-uid="${m.uid}">${m.role === 'admin' ? '회원으로 강등' : '어드민 부여'}</button>` : ''}
           <button class="btn" data-action="delete" data-uid="${m.uid}" style="background:var(--danger);color:white">🗑 삭제</button>
-          <button class="btn btn-secondary" data-action="close">닫기</button>
         </div>
       </div>
     </div>
