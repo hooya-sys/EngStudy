@@ -1762,11 +1762,17 @@ function render() {
 // ==========================================================
 // INIT
 // ==========================================================
-(async function init() {
+// 외부(main.js)에서 인증 후 호출
+export async function bootGame() {
   await loadState();
-  if (state.name) state.screen = 'home';
+  state.screen = 'home';  // welcome 화면 제거 — 이제 항상 home에서 시작
   render();
-})();
+}
+
+window.addEventListener('beforeunload', () => {
+  // 마지막 진도 즉시 저장
+  try { saveState(); } catch {}
+});
 
 // onclick="..." 인라인 핸들러가 동작하려면 함수들이 window에 노출되어야 함
 const __exports = {
