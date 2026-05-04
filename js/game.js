@@ -1,5 +1,6 @@
 import { loadState as _loadState, saveState as _saveState, loadCustomWords as _loadCustomWords, saveCustomWords as _saveCustomWords } from './store.js';
 import { currentUser, currentProfile, logout } from './auth.js';
+import { renderProfile, bindProfileHandlers } from './profile.js';
 // ==========================================================
 // VOCABULARY DATA - 교육부 초등 필수 영단어 (주제별)
 // ==========================================================
@@ -1735,7 +1736,7 @@ function render() {
     case 'spelling': html = renderSpelling(); break;
     case 'matching': html = renderMatching(); break;
     case 'result': html = renderResult(); break;
-    case 'profile': html = '<div class="card">프로필 화면 준비 중...</div>'; break;
+    case 'profile': html = renderProfile(); break;
     case 'admin': html = '<div class="card">어드민 화면 준비 중...</div>'; break;
     default: html = renderWelcome();
   }
@@ -1781,6 +1782,7 @@ function render() {
   if (logoutBtn) logoutBtn.addEventListener('click', async () => {
     await logout();
   });
+  if (state.screen === 'profile') bindProfileHandlers();
 }
 
 // ==========================================================
@@ -1797,6 +1799,9 @@ window.addEventListener('beforeunload', () => {
   // 마지막 진도 즉시 저장
   try { saveState(); } catch {}
 });
+
+// 다른 모듈(profile.js, admin.js)에서 사용하는 심볼들 export
+export { VOCAB, CATEGORIES, state, render };
 
 // onclick="..." 인라인 핸들러가 동작하려면 함수들이 window에 노출되어야 함
 const __exports = {
