@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function isSelf(uid) { return request.auth.uid == uid; }
+    function isAdmin() {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == "approved";
+    }
+    function isApproved() {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == "approved";
+    }
+
+    match /users/{uid} {
+      allow get: if isSelf(uid) || isAdmin();
+      allow list: if isAdmin();
+
+      // 첫 생성: 본인만, role/status는 ADMIN_EMAIL 화이트리스트에 따라 강제
+      allow create: if isSelf(uid)
+        && request.resource.data.email == request.auth.token.email
+        && (
+          (request.resource.data.email == "imhooya@gmail.com"
+            && request.resource.data.role == "admin"
+            && request.resource.data.status == "approved")
+          ||
+          (request.resource.data.email != "imhooya@gmail.com"
+            && request.resource.data.role == "member"
+            && request.resource.data.status == "pending")
+        );
+
+      // 본인 업데이트: role/status/email 변경 금지 (그 외 필드는 OK)
+      allow update: if isSelf(uid)
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.status == resource.data.status
+        && request.resource.data.email == resource.data.email;
+      // 어드민 업데이트: 모든 필드 가능
+      allow update: if isAdmin();
+
+      // 삭제: 본인(탈퇴) 또는 어드민
+      allow delete: if isSelf(uid) || isAdmin();
+    }
+
+    match /users/{uid}/customWords/{wordId} {
+      // 본인: 읽기/쓰기 모두 (단 approved 상태)
+      allow read, write: if isSelf(uid) && isApproved();
+      // 어드민: 읽기 + 삭제 (회원 진도 조회 + cascade delete용). write/update는 미허용 = 최소 권한.
+      allow read, delete: if isAdmin();
+    }
+  }
+}
