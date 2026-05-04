@@ -1,6 +1,7 @@
 import { loadState as _loadState, saveState as _saveState, loadCustomWords as _loadCustomWords, saveCustomWords as _saveCustomWords } from './store.js';
 import { currentUser, currentProfile, logout } from './auth.js';
 import { renderProfile, bindProfileHandlers } from './profile.js';
+import { renderAdmin, bindAdminHandlers, resetAdminView } from './admin.js';
 // ==========================================================
 // VOCABULARY DATA - 교육부 초등 필수 영단어 (주제별)
 // ==========================================================
@@ -1737,7 +1738,7 @@ function render() {
     case 'matching': html = renderMatching(); break;
     case 'result': html = renderResult(); break;
     case 'profile': html = renderProfile(); break;
-    case 'admin': html = '<div class="card">어드민 화면 준비 중...</div>'; break;
+    case 'admin': html = renderAdmin(); break;
     default: html = renderWelcome();
   }
   app.innerHTML = html;
@@ -1774,6 +1775,7 @@ function render() {
 
   const adminBtn = document.getElementById('adminBtn');
   if (adminBtn) adminBtn.addEventListener('click', () => {
+    resetAdminView();
     state.screen = 'admin';
     render();
   });
@@ -1783,6 +1785,7 @@ function render() {
     await logout();
   });
   if (state.screen === 'profile') bindProfileHandlers();
+  if (state.screen === 'admin') bindAdminHandlers();
 }
 
 // ==========================================================
