@@ -1690,19 +1690,20 @@ function renderWordList() {
         <div class="screen-sub">${cat.nameKr} · 총 ${words.length}개 단어 · 🔊 버튼을 누르면 발음을 들을 수 있어요</div>
       </div>
 
-      <div style="border:3px solid var(--navy);border-radius:14px;background:white;overflow:hidden">
-        ${words.length === 0
-          ? '<div style="text-align:center;padding:30px;color:var(--navy-soft)">단어가 없어요. 단어를 추가해 보세요!</div>'
-          : words.map((w, i) => `
-          <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;${i < words.length - 1 ? 'border-bottom:1px solid #eee' : ''}">
-            <div style="flex:1;min-width:0">
-              <div style="font-family:'Fredoka';font-weight:600;font-size:18px;color:var(--navy)">${w.en}</div>
-              <div style="color:var(--navy-soft);font-size:14px;margin-top:2px">${w.ko}</div>
-            </div>
-            <button class="btn btn-icon" onclick="speak('${w.en.replace(/'/g, "\\'")}'); event.stopPropagation();" aria-label="발음 듣기" style="flex-shrink:0">🔊</button>
-          </div>
-        `).join('')}
-      </div>
+      ${words.length === 0
+        ? '<div style="border:3px solid var(--navy);border-radius:14px;background:white;text-align:center;padding:30px;color:var(--navy-soft)">단어가 없어요. 단어를 추가해 보세요!</div>'
+        : `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+            ${words.map(w => `
+              <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:2px solid var(--navy);border-radius:12px;background:white">
+                <div style="flex:1;min-width:0">
+                  <div style="font-family:'Fredoka';font-weight:600;font-size:17px;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.en}</div>
+                  <div style="color:var(--navy-soft);font-size:13px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.ko}</div>
+                </div>
+                <button class="btn btn-icon" onclick="speak('${w.en.replace(/'/g, "\\'")}'); event.stopPropagation();" aria-label="발음 듣기" style="flex-shrink:0">🔊</button>
+              </div>
+            `).join('')}
+          </div>`
+      }
     </div>
   `;
 }
