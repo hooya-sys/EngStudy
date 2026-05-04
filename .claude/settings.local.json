@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Start-Process \"H:\\\\ClaudeProjects\\\\EngStudy\\\\EngStudy\\\\index.html\")",
+      "Bash(awk '/^  [a-z]+: \\\\{$/{cat=$1} /^      \\\\{ en:/{count[cat]++} END{for\\(c in count\\) print c, count[c]}' \"H:\\\\ClaudeProjects\\\\EngStudy\\\\EngStudy\\\\index.html\")",
+      "Bash(git *)",
+      "Bash(grep -oE 'onclick=[`\"'\"'\"'][a-zA-Z_]+\\\\\\(' H:/ClaudeProjects/EngStudy/EngStudy/js/game.js)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(grep -oE \"onclick=[\\\\\"'\\\\`]\\([a-zA-Z_]+\\)\\\\\\(\" \"H:/ClaudeProjects/EngStudy/EngStudy/js/game.js\")",
+      "Bash(grep -oE \"onclick=[\\\\\"'\\\\`]\\([a-zA-Z_]+\\)\\\\\\(\" \"H:/ClaudeProjects/EngStudy/EngStudy/index.html\")",
+      "Bash(cat)",
+      "Bash(bash /tmp/check_exports.sh)",
+      "Bash(firebase deploy *)",
+      "Bash(xargs grep *)",
+      "Bash(measure-object -Line)",
+      "Bash(curl *)"
+    ]
+  }
+}
