@@ -230,7 +230,10 @@ service cloud.firestore {
     }
 
     match /users/{uid}/customWords/{wordId} {
+      // 본인: 읽기/쓰기 모두 가능 (단, approved 상태일 때만)
       allow read, write: if isSelf(uid) && isApproved();
+      // 어드민: 다른 회원 단어 개수 집계 + 회원 삭제 시 cascade delete를 위해 read/delete 허용 (write/update는 X)
+      allow read, delete: if isAdmin();
     }
   }
 }
@@ -241,6 +244,7 @@ service cloud.firestore {
 - 클라이언트가 자기 문서를 임의로 admin / approved로 위조 생성 못 하도록 **이메일 화이트리스트 ↔ role/status 매핑을 룰에서 강제**.
 - 클라이언트의 어드민 분기 코드는 UX용일 뿐 — 실제 차단은 Security Rules가 담당.
 - 차단된 사용자가 클라 우회 시도 → 어떤 쓰기도 룰에 막힘 (`isApproved()`가 false).
+- 어드민의 customWords 권한은 read + delete만 — 다른 회원 단어를 어드민이 수정/추가할 일은 없으므로 최소 권한 원칙 유지.
 
 ## 10. 에러처리
 
