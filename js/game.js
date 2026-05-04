@@ -1028,8 +1028,9 @@ function renderCustomManage() {
             </div>
           `).join('')}
         </div>
-        <div style="text-align:center;">
+        <div style="text-align:center;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center">
           <button class="btn btn-primary btn-lg" onclick="startCustomStudy()">🎮 공부하러 가기</button>
+          <button class="btn" onclick="resetCustomWords()" style="background:var(--danger);color:white">🗑 전체 초기화</button>
         </div>
       `}
 
@@ -1083,6 +1084,20 @@ async function deleteCustomWord(i) {
   const removed = VOCAB.custom.words.splice(i, 1)[0];
   if (removed && state.mastered.custom) {
     state.mastered.custom = state.mastered.custom.filter(en => en !== removed.en);
+    await saveState();
+  }
+  await saveCustomWords();
+  playSound('click');
+  render();
+}
+
+async function resetCustomWords() {
+  if (VOCAB.custom.words.length === 0) return;
+  if (!confirm(`내 단어장의 ${VOCAB.custom.words.length}개 단어를 모두 삭제할까요?\n이 작업은 되돌릴 수 없어요.`)) return;
+  VOCAB.custom.words = [];
+  // 마스터 기록도 함께 초기화 (삭제된 단어들에 대한 기록은 의미 없음)
+  if (state.mastered.custom) {
+    state.mastered.custom = [];
     await saveState();
   }
   await saveCustomWords();
@@ -1909,6 +1924,7 @@ const __exports = {
   nextCard,
   nextQuestion,
   prevCard,
+  resetCustomWords,
   selectCategory,
   selectTile,
   speak,
