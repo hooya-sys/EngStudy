@@ -878,11 +878,6 @@ function renderHeader() {
   const avatarHtml = photo
     ? `<img src="${photo}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
     : `🦁`;
-  const zoomOutDisabled = zoomLevel <= ZOOM_MIN;
-  const zoomInDisabled = zoomLevel >= ZOOM_MAX;
-  const zoomOutAttrs = zoomOutDisabled ? 'disabled style="opacity:0.45;"' : '';
-  const zoomInAttrs = zoomInDisabled ? 'disabled style="opacity:0.45;"' : '';
-
   return `
     <div class="header">
       <div class="avatar" id="avatarBtn" style="cursor:pointer" title="내 정보">${avatarHtml}</div>
@@ -894,8 +889,6 @@ function renderHeader() {
         <div class="xp-bar"><div class="xp-fill" style="width:${xpPct}%"></div></div>
         <div class="xp-text">${xpInLevel} / ${XP_PER_LEVEL} XP</div>
       </div>
-      <button class="btn btn-icon" onclick="zoomOut()" title="화면 축소" ${zoomOutAttrs}>🔍➖</button>
-      <button class="btn btn-icon" onclick="zoomIn()" title="화면 확대" ${zoomInAttrs}>🔍➕</button>
       <button class="btn btn-icon" onclick="toggleSound()" title="${soundEnabled ? '소리 끄기' : '소리 켜기'}">${soundEnabled ? '🔊' : '🔇'}</button>
       <button class="btn btn-icon" id="achievementsBtn" title="나의 업적">🏆</button>
       ${isAdmin ? `<button class="btn btn-icon" id="adminBtn" title="회원관리">🛡️</button>` : ''}
