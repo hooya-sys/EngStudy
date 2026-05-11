@@ -619,6 +619,7 @@ function confetti() {
 let audioCtx = null;
 let soundEnabled = true;
 let zoomLevel = 1.0;
+let zoomMenuOpen = false;
 let masterGain = null;
 
 function getAudioCtx() {
@@ -843,6 +844,12 @@ function zoomOut() {
   playSound('click');
 }
 
+function toggleZoomMenu(e) {
+  if (e) e.stopPropagation();
+  zoomMenuOpen = !zoomMenuOpen;
+  render();
+}
+
 function addXP(amount) {
   const prevLevel = state.level;
   state.xp += amount;
@@ -865,6 +872,24 @@ function showLevelUp(lvl) {
 function closeLevelUp() {
   document.getElementById('levelUpOverlay').classList.remove('show');
   render();
+}
+
+function renderZoomFab() {
+  const triggerClass = zoomMenuOpen ? 'zoom-fab-btn zoom-fab-trigger open' : 'zoom-fab-btn zoom-fab-trigger';
+  const zoomInDisabled = zoomLevel >= ZOOM_MAX ? 'disabled' : '';
+  const zoomOutDisabled = zoomLevel <= ZOOM_MIN ? 'disabled' : '';
+  const actions = zoomMenuOpen
+    ? `
+      <button class="zoom-fab-btn" onclick="zoomIn()" title="화면 확대" ${zoomInDisabled}>➕</button>
+      <button class="zoom-fab-btn" onclick="zoomOut()" title="화면 축소" ${zoomOutDisabled}>➖</button>
+    `
+    : '';
+  return `
+    <div class="zoom-fab">
+      <button class="${triggerClass}" onclick="toggleZoomMenu(event)" title="화면 크기 조절">🔍</button>
+      ${actions}
+    </div>
+  `;
 }
 
 // ==========================================================
@@ -2006,6 +2031,7 @@ const __exports = {
   startGame,
   startMode,
   toggleSound,
+  toggleZoomMenu,
   zoomIn,
   zoomOut,
 };
