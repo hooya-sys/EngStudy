@@ -845,7 +845,7 @@ function zoomOut() {
 }
 
 function toggleZoomMenu(e) {
-  if (e) e.stopPropagation();
+  e.stopPropagation();
   zoomMenuOpen = !zoomMenuOpen;
   render();
 }
@@ -875,7 +875,7 @@ function closeLevelUp() {
 }
 
 function renderZoomFab() {
-  const triggerClass = zoomMenuOpen ? 'zoom-fab-btn zoom-fab-trigger open' : 'zoom-fab-btn zoom-fab-trigger';
+  const triggerClass = `zoom-fab-btn zoom-fab-trigger${zoomMenuOpen ? ' open' : ''}`;
   const zoomInDisabled = zoomLevel >= ZOOM_MAX ? 'disabled' : '';
   const zoomOutDisabled = zoomLevel <= ZOOM_MIN ? 'disabled' : '';
   const actions = zoomMenuOpen
