@@ -462,6 +462,11 @@ const VOCAB = {
       { en: 'treasure', ko: '보물' }
     ]
   },
+  random: {
+    name: 'Random Mix', nameKr: '랜덤 30', emoji: '🎲', color: '#845EC2',
+    isRandom: true,
+    words: []
+  },
   custom: {
     name: 'My Words', nameKr: '내 단어장', emoji: '⭐', color: '#FF8C42',
     isCustom: true,
@@ -1779,6 +1784,12 @@ async function startGame() {
 }
 
 function selectCategory(key) {
+  if (key === 'random') {
+    const pool = Object.keys(VOCAB)
+      .filter(k => k !== 'random')
+      .flatMap(k => VOCAB[k].words);
+    VOCAB.random.words = shuffle(pool).slice(0, 30);
+  }
   state.currentCategory = key;
   state.screen = VOCAB[key]?.isCustom ? 'customManage' : 'modeSelect';
   playSound('category');
