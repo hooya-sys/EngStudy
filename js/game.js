@@ -1911,6 +1911,9 @@ function render() {
   }
   app.innerHTML = html;
 
+  const fab = document.getElementById('zoomFab');
+  if (fab) fab.innerHTML = renderZoomFab();
+
   // Auto-focus inputs
   const spellInput = document.getElementById('spellInput');
   if (spellInput && !state.gameState?.answered) spellInput.focus();
@@ -1993,6 +1996,12 @@ function render() {
 // 외부(main.js)에서 인증 후 호출
 export async function bootGame() {
   await loadState();
+  document.addEventListener('click', (ev) => {
+    if (zoomMenuOpen && !ev.target.closest('#zoomFab')) {
+      zoomMenuOpen = false;
+      render();
+    }
+  });
   state.screen = 'home';  // welcome 화면 제거 — 이제 항상 home에서 시작
   render();
 }
