@@ -956,6 +956,9 @@ function renderModeSelect() {
   const mastered = (state.mastered[state.currentCategory] || []).filter(en => existing.has(en)).length;
   const backLabel = cat.isCustom ? '← 단어 관리로' : '← 돌아가기';
   const backAction = cat.isCustom ? 'backToCustomManage()' : 'goHome()';
+  const subText = cat.isRandom
+    ? `${cat.nameKr} · ${cat.words.length}개 단어 (매번 새로 뽑힘)`
+    : `${cat.nameKr} · ${cat.words.length}개 단어 · ${mastered}개 마스터`;
   return `
     ${renderHeader()}
     <div class="card">
@@ -963,7 +966,7 @@ function renderModeSelect() {
       <div style="text-align:center; margin: 16px 0;">
         <div style="font-size: 60px;">${cat.emoji}</div>
         <div class="screen-title" style="color: ${cat.color};">${cat.name}</div>
-        <div class="screen-sub">${cat.nameKr} · ${cat.words.length}개 단어 · ${mastered}개 마스터</div>
+        <div class="screen-sub">${subText}</div>
       </div>
       <div style="font-family: 'Fredoka'; font-weight: 600; color: var(--navy); margin-bottom: 10px;">어떤 게임으로 공부할까?</div>
       <div class="modes">
