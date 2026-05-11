@@ -14,7 +14,27 @@
       "Bash(xargs grep *)",
       "Bash(measure-object -Line)",
       "Bash(curl *)",
-      "Bash(tee deploy.log)"
+      "Bash(tee deploy.log)",
+      "Bash(gh repo *)",
+      "WebFetch(domain:github.com)",
+      "Bash(firebase --version)",
+      "Bash(npx firebase *)",
+      "Bash(npx -y firebase-tools --version)",
+      "Bash(npx -y firebase-tools projects:list)",
+      "Bash(npx -y firebase-tools hosting:channel:list)",
+      "Bash(npx -y firebase-tools deploy --only hosting,firestore)",
+      "Bash(npx -y http-server . -p 8080 -c-1 -s)",
+      "Bash(cp js/game.js /tmp/_gamecheck.mjs)",
+      "Bash(node --check /tmp/_gamecheck.mjs)",
+      "Bash(rm -f /tmp/_gamecheck.mjs)",
+      "Bash(npx -y firebase-tools deploy --only hosting)",
+      "Bash(cp js/game.js /tmp/_zoomcheck.mjs)",
+      "Bash(node --check /tmp/_zoomcheck.mjs)",
+      "Bash(rm -f /tmp/_zoomcheck.mjs)",
+      "Bash(python3 -c ' *)",
+      "Bash(cp js/game.js /tmp/_fabcheck.mjs)",
+      "Bash(node --check /tmp/_fabcheck.mjs)",
+      "Bash(rm -f /tmp/_fabcheck.mjs)"
     ]
   }
 }
