@@ -825,6 +825,24 @@ function toggleSound() {
   render();
 }
 
+function zoomIn() {
+  if (zoomLevel >= ZOOM_MAX) return;
+  zoomLevel = Math.min(ZOOM_MAX, +(zoomLevel + ZOOM_STEP).toFixed(2));
+  document.body.style.zoom = zoomLevel;
+  saveState();
+  render();
+  playSound('click');
+}
+
+function zoomOut() {
+  if (zoomLevel <= ZOOM_MIN) return;
+  zoomLevel = Math.max(ZOOM_MIN, +(zoomLevel - ZOOM_STEP).toFixed(2));
+  document.body.style.zoom = zoomLevel;
+  saveState();
+  render();
+  playSound('click');
+}
+
 function addXP(amount) {
   const prevLevel = state.level;
   state.xp += amount;
@@ -860,6 +878,10 @@ function renderHeader() {
   const avatarHtml = photo
     ? `<img src="${photo}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
     : `🦁`;
+  const zoomOutDisabled = zoomLevel <= ZOOM_MIN;
+  const zoomInDisabled = zoomLevel >= ZOOM_MAX;
+  const zoomOutStyle = zoomOutDisabled ? 'opacity:0.45;pointer-events:none;' : '';
+  const zoomInStyle = zoomInDisabled ? 'opacity:0.45;pointer-events:none;' : '';
 
   return `
     <div class="header">
@@ -872,6 +894,8 @@ function renderHeader() {
         <div class="xp-bar"><div class="xp-fill" style="width:${xpPct}%"></div></div>
         <div class="xp-text">${xpInLevel} / ${XP_PER_LEVEL} XP</div>
       </div>
+      <button class="btn btn-icon" onclick="zoomOut()" title="화면 축소" style="${zoomOutStyle}">🔍➖</button>
+      <button class="btn btn-icon" onclick="zoomIn()" title="화면 확대" style="${zoomInStyle}">🔍➕</button>
       <button class="btn btn-icon" onclick="toggleSound()" title="${soundEnabled ? '소리 끄기' : '소리 켜기'}">${soundEnabled ? '🔊' : '🔇'}</button>
       <button class="btn btn-icon" id="achievementsBtn" title="나의 업적">🏆</button>
       ${isAdmin ? `<button class="btn btn-icon" id="adminBtn" title="회원관리">🛡️</button>` : ''}
@@ -1989,6 +2013,8 @@ const __exports = {
   startGame,
   startMode,
   toggleSound,
+  zoomIn,
+  zoomOut,
 };
 for (const [k, v] of Object.entries(__exports)) {
   window[k] = v;
