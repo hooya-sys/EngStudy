@@ -880,8 +880,8 @@ function renderZoomFab() {
   const zoomOutDisabled = zoomLevel <= ZOOM_MIN ? 'disabled' : '';
   const actions = zoomMenuOpen
     ? `
-      <button class="zoom-fab-btn" onclick="zoomIn()" title="화면 확대" ${zoomInDisabled}>➕</button>
-      <button class="zoom-fab-btn" onclick="zoomOut()" title="화면 축소" ${zoomOutDisabled}>➖</button>
+      <button class="zoom-fab-btn" onclick="event.stopPropagation(); zoomIn()" title="화면 확대" ${zoomInDisabled}>➕</button>
+      <button class="zoom-fab-btn" onclick="event.stopPropagation(); zoomOut()" title="화면 축소" ${zoomOutDisabled}>➖</button>
     `
     : '';
   return `
