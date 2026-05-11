@@ -479,6 +479,9 @@ const XP_PER_LEVEL = 100;
 const XP_CORRECT = 10;
 const XP_BONUS_PERFECT = 30;
 const QUESTIONS_PER_ROUND = 8;
+const ZOOM_MIN = 0.7;
+const ZOOM_MAX = 1.5;
+const ZOOM_STEP = 0.1;
 
 // ==========================================================
 // GAME MODES
@@ -513,6 +516,7 @@ async function loadState() {
   if (loaded) {
     state = { ...state, ...loaded };
     if (typeof loaded.soundEnabled === 'boolean') soundEnabled = loaded.soundEnabled;
+    if (typeof loaded.zoomLevel === 'number') zoomLevel = loaded.zoomLevel;
     if (state.lastPlayed) {
       const last = new Date(state.lastPlayed).toDateString();
       const today = new Date().toDateString();
@@ -520,6 +524,7 @@ async function loadState() {
       if (last !== today && last !== yesterday) state.streak = 0;
     }
   }
+  document.body.style.zoom = zoomLevel;
   await loadCustomWords();
 }
 
@@ -531,7 +536,8 @@ async function saveState() {
     streak: state.streak,
     lastPlayed: state.lastPlayed,
     mastered: state.mastered,
-    soundEnabled: soundEnabled
+    soundEnabled: soundEnabled,
+    zoomLevel: zoomLevel
   };
   await _saveState(toSave);
   trackEvent('mastered');
@@ -612,6 +618,7 @@ function confetti() {
 // ==========================================================
 let audioCtx = null;
 let soundEnabled = true;
+let zoomLevel = 1.0;
 let masterGain = null;
 
 function getAudioCtx() {
