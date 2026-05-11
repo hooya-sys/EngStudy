@@ -1657,6 +1657,7 @@ function finishFlashcard() {
 // MASTERED TRACKING
 // ==========================================================
 function markMastered(catKey, wordEn) {
+  if (VOCAB[catKey]?.isRandom) return;
   if (!state.mastered[catKey]) state.mastered[catKey] = [];
   if (!state.mastered[catKey].includes(wordEn)) {
     state.mastered[catKey].push(wordEn);
