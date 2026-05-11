@@ -916,10 +916,42 @@
     margin-bottom: 16px;
   }
   .custom-empty .custom-empty-emoji { font-size: 44px; display: block; margin-bottom: 8px; }
+  .zoom-fab {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  .zoom-fab-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 3px solid var(--navy);
+    background: white;
+    color: var(--navy);
+    font-size: 20px;
+    font-family: 'Fredoka';
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  .zoom-fab-btn:hover:not([disabled]) { transform: translateY(-2px); }
+  .zoom-fab-btn:active:not([disabled]) { transform: translateY(0); }
+  .zoom-fab-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+  .zoom-fab-trigger.open { background: var(--primary); color: white; }
 </style>
 </head>
 <body>
 <div class="app" id="app"></div>
+<div id="zoomFab"></div>
 <div class="level-up-overlay" id="levelUpOverlay">
   <div class="level-up-box">
     <div class="level-up-num" id="levelUpNum">2</div>
