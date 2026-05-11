@@ -891,8 +891,9 @@ function renderWelcome() {
 }
 
 function renderHome() {
-  const totalWords = CATEGORIES.reduce((sum, k) => sum + VOCAB[k].words.length, 0);
-  const totalMastered = CATEGORIES.reduce((sum, k) => {
+  const countedCats = CATEGORIES.filter(k => !VOCAB[k].isRandom);
+  const totalWords = countedCats.reduce((sum, k) => sum + VOCAB[k].words.length, 0);
+  const totalMastered = countedCats.reduce((sum, k) => {
     const existing = new Set(VOCAB[k].words.map(w => w.en));
     return sum + (state.mastered[k] || []).filter(en => existing.has(en)).length;
   }, 0);
@@ -921,19 +922,25 @@ function renderHome() {
           const mastered = masteredList.filter(en => masteredSet.has(en)).length;
           const pct = wordCount > 0 ? (mastered / wordCount) * 100 : 0;
           const isCustom = !!cat.isCustom;
-          const progressText = wordCount > 0
-            ? `${mastered}/${wordCount}`
-            : (isCustom ? '단어를 추가해봐!' : '0/0');
+          const isRandom = !!cat.isRandom;
+          const progressText = isRandom
+            ? '매번 새로운 30단어!'
+            : (wordCount > 0
+              ? `${mastered}/${wordCount}`
+              : (isCustom ? '단어를 추가해봐!' : '0/0'));
           const cardStyle = isCustom
             ? ''
             : `style="background: linear-gradient(180deg, white 60%, ${cat.color}22);"`;
+          const progressBar = isRandom
+            ? ''
+            : `<div class="cat-progress"><div class="cat-progress-fill" style="width:${pct}%; background:${cat.color};"></div></div>`;
           return `
             <div class="cat-card${isCustom ? ' custom' : ''}" ${cardStyle} onclick="selectCategory('${key}')">
               ${isCustom ? '<span class="cat-badge-add">+</span>' : ''}
               <span class="cat-emoji">${cat.emoji}</span>
               <div class="cat-name">${cat.name}</div>
               <div class="cat-name-kr">${cat.nameKr}</div>
-              <div class="cat-progress"><div class="cat-progress-fill" style="width:${pct}%; background:${cat.color};"></div></div>
+              ${progressBar}
               <div class="cat-progress-text">${progressText}</div>
             </div>
           `;
