@@ -1633,7 +1633,7 @@ function spawnWord() {
     const candidate = gs.pool[(gs.poolIdx + i) % gs.pool.length];
     if (!activeEns.has(candidate.en)) {
       pick = candidate;
-      gs.poolIdx = (gs.poolIdx + i + 1) % gs.pool.length;
+      gs.poolIdx = gs.poolIdx + i + 1;
       break;
     }
   }
