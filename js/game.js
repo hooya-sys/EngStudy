@@ -616,10 +616,13 @@ function speak(text) {
 }
 
 // 단어 발음 후 한 철자씩 스펠링 발음
+let _spellToken = 0;
 function speakAndSpell(text) {
   if (!('speechSynthesis' in window)) return;
   const synth = window.speechSynthesis;
+  const myToken = ++_spellToken;
   synth.cancel();
+  if (synth.paused) synth.resume();
   const queue = (txt, rate) => new Promise(resolve => {
     const u = new SpeechSynthesisUtterance(txt);
     u.lang = 'en-US';
@@ -630,12 +633,17 @@ function speakAndSpell(text) {
     synth.speak(u);
   });
   (async () => {
+    await new Promise(r => setTimeout(r, 50));
+    if (myToken !== _spellToken) return;
     await queue(text, 0.85);
-    await new Promise(r => setTimeout(r, 250));
+    if (myToken !== _spellToken) return;
+    await new Promise(r => setTimeout(r, 200));
     for (const ch of text) {
       if (!/[A-Za-z]/.test(ch)) continue;
-      await queue(ch, 0.7);
-      await new Promise(r => setTimeout(r, 60));
+      if (myToken !== _spellToken) return;
+      await queue(ch, 1.1);
+      if (myToken !== _spellToken) return;
+      await new Promise(r => setTimeout(r, 40));
     }
   })();
   trackEvent('speak');
