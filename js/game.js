@@ -484,16 +484,16 @@ const ZOOM_MAX = 1.5;
 const ZOOM_STEP = 0.1;
 const WORD_HEIGHT = 44;
 const LEVELS = [
-  { maxConcurrent: 1, spawnMs: 3000, speed: 30 },
-  { maxConcurrent: 1, spawnMs: 2500, speed: 40 },
-  { maxConcurrent: 2, spawnMs: 2200, speed: 50 },
-  { maxConcurrent: 2, spawnMs: 2000, speed: 65 },
-  { maxConcurrent: 3, spawnMs: 1800, speed: 80 },
-  { maxConcurrent: 3, spawnMs: 1600, speed: 95 },
-  { maxConcurrent: 4, spawnMs: 1400, speed: 115 },
-  { maxConcurrent: 4, spawnMs: 1200, speed: 135 },
-  { maxConcurrent: 5, spawnMs: 1000, speed: 155 },
-  { maxConcurrent: 5, spawnMs: 800,  speed: 180 }
+  { maxConcurrent: 1, spawnMs: 3000, speed: 15 },
+  { maxConcurrent: 1, spawnMs: 2500, speed: 20 },
+  { maxConcurrent: 2, spawnMs: 2200, speed: 25 },
+  { maxConcurrent: 2, spawnMs: 2000, speed: 32.5 },
+  { maxConcurrent: 3, spawnMs: 1800, speed: 40 },
+  { maxConcurrent: 3, spawnMs: 1600, speed: 47.5 },
+  { maxConcurrent: 4, spawnMs: 1400, speed: 57.5 },
+  { maxConcurrent: 4, spawnMs: 1200, speed: 67.5 },
+  { maxConcurrent: 5, spawnMs: 1000, speed: 77.5 },
+  { maxConcurrent: 5, spawnMs: 800,  speed: 90 }
 ];
 const TYPER_KILLS_PER_LEVEL = 5;
 
