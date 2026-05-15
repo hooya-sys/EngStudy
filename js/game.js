@@ -1668,13 +1668,31 @@ function typerLoop(t) {
 
   // 이동
   const limit = gs.fieldH - WORD_HEIGHT;
+  let dead = null;
   for (const w of gs.words) {
     w.y += cfg.speed * dt;
-    if (w.y > limit) w.y = limit; // 바닥에 잠시 정지 (다음 태스크에서 게임오버로 대체)
     w.el.style.top = w.y + 'px';
+    if (w.y >= limit && !dead) dead = w;
+  }
+  if (dead) {
+    typerGameOver(dead);
+    return;
   }
 
   gs.rafId = requestAnimationFrame(typerLoop);
+}
+
+function typerGameOver(deadWord) {
+  const gs = state.gameState;
+  if (!gs || gs.over) return;
+  gs.over = true;
+  if (gs.rafId) cancelAnimationFrame(gs.rafId);
+  if (deadWord && deadWord.el) deadWord.el.classList.add('shake');
+  playSound('wrong');
+  trackEvent('wrong');
+  const input = document.getElementById('typerInput');
+  if (input) input.disabled = true;
+  setTimeout(finishTyper, 1500);
 }
 
 function renderTyper() {
@@ -1832,6 +1850,38 @@ function finishFlashcard() {
   setTimeout(() => playSound('streak'), 200);
 }
 
+function finishTyper() {
+  const gs = state.gameState;
+  if (!gs) return;
+  // 활성 단어 DOM 제거
+  for (const w of gs.words) {
+    if (w.el && w.el.parentNode) w.el.parentNode.removeChild(w.el);
+  }
+  const xpGained = gs.kills * XP_CORRECT;
+  const catKey = state.currentCategory;
+  const prevBest = state.bestTyper?.[catKey] || 0;
+  const bestUpdated = gs.bestLevelReached > prevBest;
+  if (bestUpdated) {
+    if (!state.bestTyper) state.bestTyper = {};
+    state.bestTyper[catKey] = gs.bestLevelReached;
+  }
+  if (xpGained > 0) addXP(xpGained);
+  updateStreak();
+  state.gameState = {
+    mode: 'typer',
+    correct: gs.kills,
+    total: gs.kills,
+    mistakes: 0,
+    xpGained,
+    reachedLevel: gs.bestLevelReached,
+    isTyper: true,
+    bestUpdated
+  };
+  state.screen = 'result';
+  render();
+  setTimeout(() => playSound('streak'), 200);
+}
+
 // ==========================================================
 // MASTERED TRACKING
 // ==========================================================
@@ -1869,6 +1919,11 @@ function renderResult() {
 
   if (gs.isFlashcard) {
     emoji = '📚'; title = '잘했어!'; msg = `${gs.correct}개 단어를 쭉 봤어. 이제 퀴즈로 실력을 확인해보자!`;
+  } else if (gs.isTyper) {
+    emoji = '🚀'; title = `Lv ${gs.reachedLevel} 도달!`;
+    msg = gs.bestUpdated
+      ? `🏆 최고 레벨 갱신! ${gs.correct}개 단어를 처치했어!`
+      : `${gs.correct}개 단어를 처치했어. 다시 도전해볼까?`;
   } else {
     const pct = gs.correct / gs.total;
     if (gs.perfect || pct === 1) { emoji = '🏆'; title = '완벽해!!!'; msg = '전부 다 맞혔어! 넌 진짜 영어 천재야!'; }
@@ -1899,6 +1954,19 @@ function renderResult() {
           <div class="stat-box">
             <div class="stat-num">🔥${state.streak}</div>
             <div class="stat-label">연속일</div>
+          </div>
+        ` : gs.isTyper ? `
+          <div class="stat-box">
+            <div class="stat-num">Lv ${gs.reachedLevel}</div>
+            <div class="stat-label">도달 레벨</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">${gs.correct}</div>
+            <div class="stat-label">처치</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">+${gs.xpGained}</div>
+            <div class="stat-label">경험치</div>
           </div>
         ` : `
           <div class="stat-box">
@@ -2161,6 +2229,7 @@ const __exports = {
   deleteCustomWord,
   exitTyper,
   finishFlashcard,
+  finishTyper,
   flipCard,
   goHome,
   handleSpellKey,
@@ -2181,6 +2250,7 @@ const __exports = {
   startTyper,
   toggleSound,
   toggleZoomMenu,
+  typerGameOver,
   zoomIn,
   zoomOut,
 };
