@@ -1814,6 +1814,14 @@ function handleTyperInput() {
 }
 
 function handleTyperKey(event) {
+  if (event.key === 'Escape') {
+    const gs = state.gameState;
+    if (gs && !gs.over) {
+      if (gs.paused) resumeTyper(); else pauseTyper();
+    }
+    event.preventDefault();
+    return;
+  }
   if (event.key === 'Enter') {
     const input = document.getElementById('typerInput');
     if (input) input.value = '';
@@ -1830,8 +1838,32 @@ function refocusTyperInput() {
     if (input && !input.disabled) input.focus();
   }, 0);
 }
-function pauseTyper() { /* Task 9 */ }
-function resumeTyper() { /* Task 9 */ }
+function pauseTyper() {
+  const gs = state.gameState;
+  if (!gs || gs.over || gs.paused) return;
+  gs.paused = true;
+  if (gs.rafId) cancelAnimationFrame(gs.rafId);
+  const overlay = document.getElementById('typerPauseOverlay');
+  if (overlay) overlay.classList.add('show');
+  const input = document.getElementById('typerInput');
+  if (input) input.disabled = true;
+  playSound('click');
+}
+
+function resumeTyper() {
+  const gs = state.gameState;
+  if (!gs || gs.over || !gs.paused) return;
+  gs.paused = false;
+  const overlay = document.getElementById('typerPauseOverlay');
+  if (overlay) overlay.classList.remove('show');
+  const input = document.getElementById('typerInput');
+  if (input) { input.disabled = false; input.focus(); }
+  const now = performance.now();
+  gs.lastFrameT = now;
+  gs.lastSpawnAt = now;
+  gs.rafId = requestAnimationFrame(typerLoop);
+  playSound('click');
+}
 
 function finishFlashcard() {
   const gs = state.gameState;
