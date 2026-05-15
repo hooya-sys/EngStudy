@@ -1649,7 +1649,17 @@ function spawnWord() {
   el.style.top = '0px';
   el.textContent = pick.ko;
   field.appendChild(el);
-  gs.words.push({ id, en: pick.en, ko: pick.ko, x, y: 0, el });
+  gs.words.push({ id, en: pick.en, ko: pick.ko, x, y: 0, el, hinted: false });
+  speak(pick.en);
+}
+
+function showHint(w) {
+  if (!w.el || !w.el.parentNode) return;
+  w.el.textContent = w.en;
+  speak(w.en);
+  setTimeout(() => {
+    if (w.el && w.el.parentNode) w.el.textContent = w.ko;
+  }, 1200);
 }
 
 function typerLoop(t) {
@@ -1672,6 +1682,10 @@ function typerLoop(t) {
   for (const w of gs.words) {
     w.y += cfg.speed * dt;
     w.el.style.top = w.y + 'px';
+    if (!w.hinted && w.y >= gs.fieldH * 0.5) {
+      w.hinted = true;
+      showHint(w);
+    }
     if (w.y >= limit && !dead) dead = w;
   }
   if (dead) {
