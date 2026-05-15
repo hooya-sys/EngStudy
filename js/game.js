@@ -491,7 +491,6 @@ const MODES = {
   flashcard: { name: '단어 카드', desc: '카드 넘기며 단어 익히기', emoji: '🎴', color: '#FFC857' },
   meaning: { name: '뜻 맞추기', desc: '영어 → 한국어 뜻 고르기', emoji: '🎯', color: '#FF8C42' },
   word: { name: '단어 맞추기', desc: '한국어 → 영어 단어 고르기', emoji: '🔤', color: '#2EC4B6' },
-  matching: { name: '짝 맞추기', desc: '영어-한국어 짝 찾기', emoji: '🧩', color: '#FF6F91' },
   spelling: { name: '스펠링 도전', desc: '단어 직접 써보기', emoji: '✍️', color: '#845EC2' }
 };
 
@@ -1022,17 +1021,14 @@ function renderModeSelect() {
         ${Object.keys(MODES).map((mk, idx) => {
           const m = MODES[mk];
           const needsChoices = (mk === 'meaning' || mk === 'word');
-          const needsPairs = (mk === 'matching');
           const disabled = (mk !== 'wordlist' && cat.words.length === 0)
-            || (needsChoices && cat.words.length < 4)
-            || (needsPairs && cat.words.length < 2);
+            || (needsChoices && cat.words.length < 4);
           const disabledStyle = disabled ? 'opacity:0.45; cursor:not-allowed;' : '';
           const disabledHint = disabled
             ? `<div style="font-size: 11px; color: var(--danger); font-family: 'Gowun Dodum'; margin-top: 2px;">${
                 cat.words.length === 0
                   ? '단어가 필요해요'
-                  : needsChoices ? '4개 이상 단어 필요'
-                  : needsPairs ? '2개 이상 단어 필요' : ''
+                  : needsChoices ? '4개 이상 단어 필요' : ''
               }</div>`
             : '';
           const onClick = disabled ? '' : `onclick="startMode('${mk}')"`;
@@ -1559,132 +1555,6 @@ function handleSpellKey(event) {
   }
 }
 
-// ==========================================================
-// MATCHING MODE
-// ==========================================================
-function startMatching() {
-  const cat = VOCAB[state.currentCategory];
-  const pairs = shuffle(cat.words).slice(0, Math.min(6, cat.words.length));
-  const tiles = [];
-  pairs.forEach((p, i) => {
-    tiles.push({ id: 'e' + i, pairId: i, text: p.en, type: 'eng', word: p });
-    tiles.push({ id: 'k' + i, pairId: i, text: p.ko, type: 'kor', word: p });
-  });
-  state.gameState = {
-    mode: 'matching',
-    tiles: shuffle(tiles),
-    selected: null,
-    matched: [],
-    mistakes: 0,
-    startTime: Date.now(),
-    totalPairs: pairs.length
-  };
-  state.screen = 'matching';
-  render();
-}
-
-function renderMatching() {
-  const gs = state.gameState;
-  return `
-    ${renderHeader()}
-    <div class="card">
-      <div class="game-header">
-        <button class="btn btn-ghost btn-sm" onclick="backToMode()">← 나가기</button>
-        <div class="progress-pill">🧩 ${gs.matched.length / 2} / ${gs.totalPairs} 쌍 · 실수 ${gs.mistakes}</div>
-      </div>
-
-      <div style="text-align: center; margin-bottom: 10px;">
-        <div style="font-family: 'Fredoka'; font-weight: 600; color: var(--navy); font-size: 18px;">영어와 한국어 뜻을 짝지어봐! 🧩</div>
-      </div>
-
-      <div class="match-grid">
-        ${gs.tiles.map(t => {
-          let cls = t.type;
-          if (gs.matched.includes(t.id)) cls += ' matched';
-          if (gs.selected && gs.selected.id === t.id) cls += ' selected';
-          if (gs.wrongPair && gs.wrongPair.includes(t.id)) cls += ' wrong-match';
-          return `<div class="match-tile ${cls}" onclick="selectTile('${t.id}')">${t.text}</div>`;
-        }).join('')}
-      </div>
-
-      ${gs.matched.length === gs.tiles.length ? `
-        <div class="feedback correct" style="margin-top: 20px;">
-          🎉 전부 다 맞혔어! 실수는 ${gs.mistakes}번!
-        </div>
-        <div style="text-align:center;">
-          <button class="btn btn-primary" onclick="finishMatching()">결과 보기 🏆</button>
-        </div>
-      ` : ''}
-    </div>
-  `;
-}
-
-function selectTile(id) {
-  const gs = state.gameState;
-  if (gs.matched.includes(id)) return;
-  if (gs.wrongPair) return; // Wait for wrong pair to clear
-  const tile = gs.tiles.find(t => t.id === id);
-
-  if (!gs.selected) {
-    gs.selected = tile;
-    playSound('select');
-    render();
-    return;
-  }
-
-  if (gs.selected.id === id) {
-    gs.selected = null;
-    playSound('click');
-    render();
-    return;
-  }
-
-  // Check match
-  if (gs.selected.pairId === tile.pairId && gs.selected.type !== tile.type) {
-    gs.matched.push(gs.selected.id, tile.id);
-    playSound('match');
-    markMastered(state.currentCategory, tile.word.en);
-    setTimeout(() => speak(tile.word.en), 150);
-    gs.selected = null;
-    render();
-  } else {
-    gs.mistakes++;
-    gs.wrongPair = [gs.selected.id, tile.id];
-    playSound('wrong');
-    trackEvent('wrong');
-    render();
-    setTimeout(() => {
-      gs.selected = null;
-      gs.wrongPair = null;
-      render();
-    }, 800);
-  }
-}
-
-function finishMatching() {
-  const gs = state.gameState;
-  const isPerfect = gs.mistakes === 0;
-  const xpGained = gs.totalPairs * XP_CORRECT + (isPerfect ? XP_BONUS_PERFECT : 0);
-  addXP(xpGained);
-  updateStreak();
-  state.gameState = {
-    mode: 'matching',
-    total: gs.totalPairs,
-    correct: gs.totalPairs,
-    mistakes: gs.mistakes,
-    xpGained: xpGained,
-    perfect: isPerfect
-  };
-  state.screen = 'result';
-  render();
-  if (isPerfect) {
-    setTimeout(() => playSound('perfect'), 200);
-    setTimeout(confetti, 300);
-  } else {
-    setTimeout(() => playSound('streak'), 200);
-  }
-}
-
 function finishFlashcard() {
   const gs = state.gameState;
   gs.seen.add(gs.idx);
@@ -1866,7 +1736,6 @@ function startMode(mode) {
   state.currentMode = mode;
   playSound('gameStart');
   if (mode === 'flashcard') startFlashcard();
-  else if (mode === 'matching') startMatching();
   else startQuiz(mode);
 }
 
@@ -1901,7 +1770,6 @@ function render() {
     case 'meaning': html = renderMeaningQuiz(); break;
     case 'word': html = renderWordQuiz(); break;
     case 'spelling': html = renderSpelling(); break;
-    case 'matching': html = renderMatching(); break;
     case 'wordlist': html = renderWordList(); break;
     case 'result': html = renderResult(); break;
     case 'profile': html = renderProfile(); break;
@@ -2025,7 +1893,6 @@ const __exports = {
   closeLevelUp,
   deleteCustomWord,
   finishFlashcard,
-  finishMatching,
   flipCard,
   goHome,
   handleSpellKey,
@@ -2034,7 +1901,6 @@ const __exports = {
   prevCard,
   resetCustomWords,
   selectCategory,
-  selectTile,
   speak,
   startCustomStudy,
   startGame,
