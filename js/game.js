@@ -615,6 +615,32 @@ function speak(text) {
   trackEvent('speak');
 }
 
+// 단어 발음 후 한 철자씩 스펠링 발음
+function speakAndSpell(text) {
+  if (!('speechSynthesis' in window)) return;
+  const synth = window.speechSynthesis;
+  synth.cancel();
+  const queue = (txt, rate) => new Promise(resolve => {
+    const u = new SpeechSynthesisUtterance(txt);
+    u.lang = 'en-US';
+    u.rate = rate;
+    u.pitch = 1.1;
+    u.onend = () => resolve();
+    u.onerror = () => resolve();
+    synth.speak(u);
+  });
+  (async () => {
+    await queue(text, 0.85);
+    await new Promise(r => setTimeout(r, 250));
+    for (const ch of text) {
+      if (!/[A-Za-z]/.test(ch)) continue;
+      await queue(ch, 0.7);
+      await new Promise(r => setTimeout(r, 60));
+    }
+  })();
+  trackEvent('speak');
+}
+
 function confetti() {
   const colors = ['#FF8C42', '#2EC4B6', '#FF6F91', '#FFC857', '#845EC2'];
   for (let i = 0; i < 40; i++) {
@@ -1223,7 +1249,7 @@ function renderFlashcard() {
         <div class="flash-inner">
           <div class="flash-face flash-front">
             <div class="flash-word">${word.en}</div>
-            <button class="speak-btn" onclick="event.stopPropagation(); speak('${word.en}')">🔊</button>
+            <button class="speak-btn" onclick="event.stopPropagation(); speakAndSpell('${word.en}')">🔊</button>
             <div class="flash-hint">카드를 눌러서 뜻 확인하기</div>
           </div>
           <div class="flash-face flash-back">
@@ -1235,7 +1261,7 @@ function renderFlashcard() {
 
       <div class="controls-row">
         <button class="btn btn-sm" onclick="prevCard()" ${gs.idx === 0 ? 'disabled style="opacity:0.4"' : ''}>← 이전</button>
-        <button class="btn btn-accent btn-sm" onclick="speak('${word.en}')">🔊 다시 듣기</button>
+        <button class="btn btn-accent btn-sm" onclick="speakAndSpell('${word.en}')">🔊 다시 듣기</button>
         ${gs.idx === gs.words.length - 1
           ? `<button class="btn btn-primary btn-sm" onclick="finishFlashcard()">끝! 다음 ➜</button>`
           : `<button class="btn btn-primary btn-sm" onclick="nextCard()">다음 →</button>`}
@@ -1256,7 +1282,7 @@ function startFlashcard() {
   };
   state.screen = 'flashcard';
   render();
-  setTimeout(() => speak(state.gameState.words[0].en), 300);
+  setTimeout(() => speakAndSpell(state.gameState.words[0].en), 300);
 }
 
 function flipCard() {
@@ -1272,7 +1298,7 @@ function nextCard() {
   gs.flipped = false;
   playSound('flip');
   render();
-  setTimeout(() => speak(gs.words[gs.idx].en), 300);
+  setTimeout(() => speakAndSpell(gs.words[gs.idx].en), 300);
 }
 
 function prevCard() {
@@ -1280,7 +1306,7 @@ function prevCard() {
   state.gameState.flipped = false;
   playSound('flip');
   render();
-  setTimeout(() => speak(state.gameState.words[state.gameState.idx].en), 300);
+  setTimeout(() => speakAndSpell(state.gameState.words[state.gameState.idx].en), 300);
 }
 
 // ==========================================================
