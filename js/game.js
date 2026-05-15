@@ -615,7 +615,15 @@ function speak(text) {
   trackEvent('speak');
 }
 
-// 단어 발음 후 한 철자씩 스펠링 발음
+// Chrome speechSynthesis 장시간 중단 방지 keepalive
+if (typeof window !== 'undefined' && 'speechSynthesis' in window && !window._speechKeepalive) {
+  window._speechKeepalive = setInterval(() => {
+    const s = window.speechSynthesis;
+    if (s.speaking && !s.paused) { s.pause(); s.resume(); }
+  }, 5000);
+}
+
+// 단어 발음 → 한 철자씩 스펠링 → 다시 단어 발음
 let _spellToken = 0;
 function speakAndSpell(text) {
   if (!('speechSynthesis' in window)) return;
@@ -633,7 +641,7 @@ function speakAndSpell(text) {
     synth.speak(u);
   });
   (async () => {
-    await new Promise(r => setTimeout(r, 50));
+    await new Promise(r => setTimeout(r, 80));
     if (myToken !== _spellToken) return;
     await queue(text, 0.85);
     if (myToken !== _spellToken) return;
@@ -645,6 +653,10 @@ function speakAndSpell(text) {
       if (myToken !== _spellToken) return;
       await new Promise(r => setTimeout(r, 40));
     }
+    if (myToken !== _spellToken) return;
+    await new Promise(r => setTimeout(r, 200));
+    if (myToken !== _spellToken) return;
+    await queue(text, 0.85);
   })();
   trackEvent('speak');
 }
