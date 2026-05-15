@@ -491,7 +491,8 @@ const MODES = {
   flashcard: { name: '단어 카드', desc: '카드 넘기며 단어 익히기', emoji: '🎴', color: '#FFC857' },
   meaning: { name: '뜻 맞추기', desc: '영어 → 한국어 뜻 고르기', emoji: '🎯', color: '#FF8C42' },
   word: { name: '단어 맞추기', desc: '한국어 → 영어 단어 고르기', emoji: '🔤', color: '#2EC4B6' },
-  spelling: { name: '스펠링 도전', desc: '단어 직접 써보기', emoji: '✍️', color: '#845EC2' }
+  spelling: { name: '스펠링 도전', desc: '단어 직접 써보기', emoji: '✍️', color: '#845EC2' },
+  typer: { name: '타자 우주', desc: '떨어지는 한글을 영어로 쳐서 처치', emoji: '🚀', color: '#7B2CBF' }
 };
 
 // ==========================================================
@@ -504,6 +505,7 @@ let state = {
   streak: 0,
   lastPlayed: null,
   mastered: {}, // { categoryKey: [wordIndex, wordIndex...] }
+  bestTyper: {},
   screen: 'welcome',
   currentCategory: null,
   currentMode: null,
@@ -514,6 +516,7 @@ async function loadState() {
   const loaded = await _loadState();
   if (loaded) {
     state = { ...state, ...loaded };
+    if (!state.bestTyper || typeof state.bestTyper !== 'object') state.bestTyper = {};
     if (typeof loaded.soundEnabled === 'boolean') soundEnabled = loaded.soundEnabled;
     if (typeof loaded.zoomLevel === 'number') zoomLevel = loaded.zoomLevel;
     if (state.lastPlayed) {
@@ -535,6 +538,7 @@ async function saveState() {
     streak: state.streak,
     lastPlayed: state.lastPlayed,
     mastered: state.mastered,
+    bestTyper: state.bestTyper,
     soundEnabled: soundEnabled,
     zoomLevel: zoomLevel
   };
@@ -1555,6 +1559,29 @@ function handleSpellKey(event) {
   }
 }
 
+// ==========================================================
+// TYPER (타자 우주)
+// ==========================================================
+function startTyper() {
+  state.gameState = { mode: 'typer' };
+  state.screen = 'typer';
+  render();
+}
+
+function renderTyper() {
+  return `
+    ${renderHeader()}
+    <div class="card">
+      <button class="btn btn-ghost btn-sm" onclick="backToMode()">← 나가기</button>
+      <div style="padding:40px; text-align:center;">
+        <div style="font-size:60px;">🚀</div>
+        <div class="screen-title" style="color:#7B2CBF;">타자 우주</div>
+        <div class="screen-sub">곧 구현됩니다…</div>
+      </div>
+    </div>
+  `;
+}
+
 function finishFlashcard() {
   const gs = state.gameState;
   gs.seen.add(gs.idx);
@@ -1736,6 +1763,7 @@ function startMode(mode) {
   state.currentMode = mode;
   playSound('gameStart');
   if (mode === 'flashcard') startFlashcard();
+  else if (mode === 'typer') startTyper();
   else startQuiz(mode);
 }
 
@@ -1770,6 +1798,7 @@ function render() {
     case 'meaning': html = renderMeaningQuiz(); break;
     case 'word': html = renderWordQuiz(); break;
     case 'spelling': html = renderSpelling(); break;
+    case 'typer': html = renderTyper(); break;
     case 'wordlist': html = renderWordList(); break;
     case 'result': html = renderResult(); break;
     case 'profile': html = renderProfile(); break;
@@ -1905,6 +1934,7 @@ const __exports = {
   startCustomStudy,
   startGame,
   startMode,
+  startTyper,
   toggleSound,
   toggleZoomMenu,
   zoomIn,
