@@ -1653,7 +1653,9 @@ function spawnWord() {
   speakEnThenKo(pick.en, pick.ko);
 }
 
+let _speakKoTimer = null;
 function speakEnThenKo(en, ko) {
+  if (_speakKoTimer) { clearTimeout(_speakKoTimer); _speakKoTimer = null; }
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
   const ue = new SpeechSynthesisUtterance(en);
@@ -1661,10 +1663,13 @@ function speakEnThenKo(en, ko) {
   ue.rate = 0.85;
   ue.pitch = 1.1;
   ue.onend = () => {
-    const uk = new SpeechSynthesisUtterance(ko);
-    uk.lang = 'ko-KR';
-    uk.rate = 0.95;
-    window.speechSynthesis.speak(uk);
+    _speakKoTimer = setTimeout(() => {
+      const uk = new SpeechSynthesisUtterance(ko);
+      uk.lang = 'ko-KR';
+      uk.rate = 0.95;
+      window.speechSynthesis.speak(uk);
+      _speakKoTimer = null;
+    }, 1000);
   };
   window.speechSynthesis.speak(ue);
   trackEvent('speak');
@@ -1775,6 +1780,15 @@ function typerLevelUp() {
     gs.bestLevelReached = Math.max(gs.bestLevelReached, gs.level);
   }
   gs.killsThisLevel = 0;
+  // 화면의 단어 모두 제거 + 2초간 스폰 일시정지
+  for (const w of gs.words) {
+    if (w.el && w.el.parentNode) w.el.parentNode.removeChild(w.el);
+  }
+  gs.words = [];
+  const nextCfg = LEVELS[Math.min(gs.level, LEVELS.length) - 1];
+  gs.lastSpawnAt = performance.now() + 2000 - nextCfg.spawnMs;
+  const input = document.getElementById('typerInput');
+  if (input) input.value = '';
   const lvEl = document.getElementById('typerLv');
   if (lvEl) lvEl.textContent = String(gs.level);
   showTyperLevelBanner(gs.level);
