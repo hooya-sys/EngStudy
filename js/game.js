@@ -1731,6 +1731,29 @@ function clearTyperTargets() {
   for (const w of gs.words) w.el.classList.remove('target');
 }
 
+function typerLevelUp() {
+  const gs = state.gameState;
+  if (!gs) return;
+  if (gs.level < LEVELS.length) {
+    gs.level++;
+    gs.bestLevelReached = Math.max(gs.bestLevelReached, gs.level);
+  }
+  gs.killsThisLevel = 0;
+  const lvEl = document.getElementById('typerLv');
+  if (lvEl) lvEl.textContent = String(gs.level);
+  showTyperLevelBanner(gs.level);
+  playSound('levelup');
+}
+
+function showTyperLevelBanner(lv) {
+  const banner = document.getElementById('typerLevelBanner');
+  const text = document.getElementById('typerLevelBannerText');
+  if (!banner || !text) return;
+  text.textContent = `Level ${lv} 🚀`;
+  banner.classList.add('show');
+  setTimeout(() => banner.classList.remove('show'), 800);
+}
+
 function killTyperWord(w) {
   const gs = state.gameState;
   w.el.classList.add('dying');
@@ -1743,6 +1766,7 @@ function killTyperWord(w) {
   markMastered(state.currentCategory, w.en);
   const kEl = document.getElementById('typerKills');
   if (kEl) kEl.textContent = String(gs.kills);
+  if (gs.killsThisLevel >= TYPER_KILLS_PER_LEVEL) typerLevelUp();
 }
 
 function handleTyperInput() {
