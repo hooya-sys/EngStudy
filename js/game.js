@@ -1709,7 +1709,8 @@ function renderTyper() {
         spellcheck="false"
         placeholder="영어로 타이핑!"
         oninput="handleTyperInput()"
-        onkeydown="handleTyperKey(event)" />
+        onkeydown="handleTyperKey(event)"
+        onblur="refocusTyperInput()" />
     </div>
   `;
 }
@@ -1724,8 +1725,69 @@ function exitTyper() {
   backToMode();
 }
 
-function handleTyperInput() { /* Task 6 */ }
-function handleTyperKey(event) { /* Task 6 */ }
+function clearTyperTargets() {
+  const gs = state.gameState;
+  if (!gs) return;
+  for (const w of gs.words) w.el.classList.remove('target');
+}
+
+function killTyperWord(w) {
+  const gs = state.gameState;
+  w.el.classList.add('dying');
+  setTimeout(() => { if (w.el.parentNode) w.el.parentNode.removeChild(w.el); }, 220);
+  gs.words = gs.words.filter(x => x.id !== w.id);
+  gs.kills++;
+  gs.killsThisLevel++;
+  playSound('correct');
+  trackEvent('correct');
+  markMastered(state.currentCategory, w.en);
+  const kEl = document.getElementById('typerKills');
+  if (kEl) kEl.textContent = String(gs.kills);
+}
+
+function handleTyperInput() {
+  const gs = state.gameState;
+  if (!gs || gs.over || gs.paused) return;
+  const input = document.getElementById('typerInput');
+  if (!input) return;
+  const q = input.value.trim().toLowerCase();
+  if (!q) { clearTyperTargets(); return; }
+
+  // 정확 일치 우선 (동률이면 y 큰 단어 = 가장 바닥에 가까운 것)
+  const exact = gs.words
+    .filter(w => w.en.toLowerCase() === q)
+    .sort((a, b) => b.y - a.y)[0];
+  if (exact) {
+    killTyperWord(exact);
+    input.value = '';
+    clearTyperTargets();
+    return;
+  }
+
+  // prefix 강조
+  clearTyperTargets();
+  for (const w of gs.words) {
+    if (w.en.toLowerCase().startsWith(q)) w.el.classList.add('target');
+  }
+}
+
+function handleTyperKey(event) {
+  if (event.key === 'Enter') {
+    const input = document.getElementById('typerInput');
+    if (input) input.value = '';
+    clearTyperTargets();
+    event.preventDefault();
+  }
+}
+
+function refocusTyperInput() {
+  const gs = state.gameState;
+  if (!gs || gs.over || gs.paused) return;
+  setTimeout(() => {
+    const input = document.getElementById('typerInput');
+    if (input && !input.disabled) input.focus();
+  }, 0);
+}
 function pauseTyper() { /* Task 9 */ }
 function resumeTyper() { /* Task 9 */ }
 
@@ -2084,6 +2146,7 @@ const __exports = {
   nextQuestion,
   pauseTyper,
   prevCard,
+  refocusTyperInput,
   resetCustomWords,
   resumeTyper,
   selectCategory,
