@@ -505,8 +505,8 @@ const MODES = {
   flashcard: { name: '단어 카드', desc: '카드 넘기며 단어 익히기', emoji: '🎴', color: '#FFC857' },
   meaning: { name: '뜻 맞추기', desc: '영어 → 한국어 뜻 고르기', emoji: '🎯', color: '#FF8C42' },
   word: { name: '단어 맞추기', desc: '한국어 → 영어 단어 고르기', emoji: '🔤', color: '#2EC4B6' },
-  spelling: { name: '스펠링 도전', desc: '단어 직접 써보기', emoji: '✍️', color: '#845EC2' },
-  typer: { name: '타자 우주', desc: '떨어지는 한글을 영어로 쳐서 처치', emoji: '🚀', color: '#7B2CBF' }
+  typer: { name: '우주 타자', desc: '떨어지는 영어 단어를 그대로 입력', emoji: '🚀', color: '#7B2CBF' },
+  spelling: { name: '스펠링 도전', desc: '단어 직접 써보기', emoji: '✍️', color: '#845EC2' }
 };
 
 // ==========================================================
@@ -1647,15 +1647,27 @@ function spawnWord() {
   el.dataset.id = String(id);
   el.style.left = x + '%';
   el.style.top = '0px';
-  el.textContent = pick.ko;
+  el.textContent = pick.en;
   field.appendChild(el);
-  gs.words.push({ id, en: pick.en, ko: pick.ko, x, y: 0, el, hinted: false });
-  speak(pick.en);
+  gs.words.push({ id, en: pick.en, ko: pick.ko, x, y: 0, el });
+  speakEnThenKo(pick.en, pick.ko);
 }
 
-function showHint(w) {
-  if (!w.el || !w.el.parentNode) return;
-  w.el.textContent = w.en;
+function speakEnThenKo(en, ko) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const ue = new SpeechSynthesisUtterance(en);
+  ue.lang = 'en-US';
+  ue.rate = 0.85;
+  ue.pitch = 1.1;
+  ue.onend = () => {
+    const uk = new SpeechSynthesisUtterance(ko);
+    uk.lang = 'ko-KR';
+    uk.rate = 0.95;
+    window.speechSynthesis.speak(uk);
+  };
+  window.speechSynthesis.speak(ue);
+  trackEvent('speak');
 }
 
 function typerLoop(t) {
@@ -1678,10 +1690,6 @@ function typerLoop(t) {
   for (const w of gs.words) {
     w.y += cfg.speed * dt;
     w.el.style.top = w.y + 'px';
-    if (!w.hinted && w.y >= gs.fieldH * 0.5) {
-      w.hinted = true;
-      showHint(w);
-    }
     if (w.y >= limit && !dead) dead = w;
   }
   if (dead) {
