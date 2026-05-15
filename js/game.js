@@ -1669,7 +1669,7 @@ function speakEnThenKo(en, ko) {
       uk.rate = 0.95;
       window.speechSynthesis.speak(uk);
       _speakKoTimer = null;
-    }, 1000);
+    }, 500);
   };
   window.speechSynthesis.speak(ue);
   trackEvent('speak');
