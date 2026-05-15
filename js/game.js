@@ -482,6 +482,20 @@ const QUESTIONS_PER_ROUND = 8;
 const ZOOM_MIN = 0.7;
 const ZOOM_MAX = 1.5;
 const ZOOM_STEP = 0.1;
+const WORD_HEIGHT = 44;
+const LEVELS = [
+  { maxConcurrent: 1, spawnMs: 3000, speed: 30 },
+  { maxConcurrent: 1, spawnMs: 2500, speed: 40 },
+  { maxConcurrent: 2, spawnMs: 2200, speed: 50 },
+  { maxConcurrent: 2, spawnMs: 2000, speed: 65 },
+  { maxConcurrent: 3, spawnMs: 1800, speed: 80 },
+  { maxConcurrent: 3, spawnMs: 1600, speed: 95 },
+  { maxConcurrent: 4, spawnMs: 1400, speed: 115 },
+  { maxConcurrent: 4, spawnMs: 1200, speed: 135 },
+  { maxConcurrent: 5, spawnMs: 1000, speed: 155 },
+  { maxConcurrent: 5, spawnMs: 800,  speed: 180 }
+];
+const TYPER_KILLS_PER_LEVEL = 5;
 
 // ==========================================================
 // GAME MODES
@@ -1563,24 +1577,87 @@ function handleSpellKey(event) {
 // TYPER (타자 우주)
 // ==========================================================
 function startTyper() {
-  state.gameState = { mode: 'typer' };
+  const cat = VOCAB[state.currentCategory];
+  const pool = shuffle(cat.words.filter(w => w.en && w.ko));
+  if (pool.length === 0) {
+    state.screen = 'modeSelect';
+    render();
+    return;
+  }
+  state.gameState = {
+    mode: 'typer',
+    level: 1,
+    kills: 0,
+    killsThisLevel: 0,
+    bestLevelReached: 1,
+    words: [],
+    nextId: 0,
+    pool: pool,
+    poolIdx: 0,
+    startTime: performance.now(),
+    lastSpawnAt: 0,
+    lastFrameT: 0,
+    rafId: null,
+    fieldW: 0,
+    fieldH: 0,
+    paused: false,
+    over: false
+  };
   state.screen = 'typer';
   render();
 }
 
 function renderTyper() {
+  const gs = state.gameState;
+  const best = state.bestTyper?.[state.currentCategory] || 0;
   return `
     ${renderHeader()}
     <div class="card">
-      <button class="btn btn-ghost btn-sm" onclick="backToMode()">← 나가기</button>
-      <div style="padding:40px; text-align:center;">
-        <div style="font-size:60px;">🚀</div>
-        <div class="screen-title" style="color:#7B2CBF;">타자 우주</div>
-        <div class="screen-sub">곧 구현됩니다…</div>
+      <div class="typer-bar">
+        <button class="btn btn-ghost btn-sm" onclick="exitTyper()">← 나가기</button>
+        <div class="progress-pill" id="typerStats">
+          🚀 Lv <span id="typerLv">${gs.level}</span> · 처치 <span id="typerKills">${gs.kills}</span> · 최고 Lv ${best}
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="pauseTyper()">⏸</button>
       </div>
+      <div class="typer-field" id="typerField">
+        <div class="typer-pause-overlay" id="typerPauseOverlay">
+          <div class="title">일시정지</div>
+          <button class="btn btn-accent" onclick="resumeTyper()">▶ 계속하기</button>
+        </div>
+        <div class="typer-level-banner" id="typerLevelBanner">
+          <div class="title" id="typerLevelBannerText">Level 1 🚀</div>
+        </div>
+      </div>
+      <input
+        type="text"
+        class="typer-input"
+        id="typerInput"
+        inputmode="latin"
+        autocapitalize="off"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="영어로 타이핑!"
+        oninput="handleTyperInput()"
+        onkeydown="handleTyperKey(event)" />
     </div>
   `;
 }
+
+function exitTyper() {
+  const gs = state.gameState;
+  if (gs && gs.rafId) cancelAnimationFrame(gs.rafId);
+  if (gs) {
+    gs.over = true;
+    gs.words = [];
+  }
+  backToMode();
+}
+
+function handleTyperInput() { /* Task 6 */ }
+function handleTyperKey(event) { /* Task 6 */ }
+function pauseTyper() { /* Task 9 */ }
+function resumeTyper() { /* Task 9 */ }
 
 function finishFlashcard() {
   const gs = state.gameState;
@@ -1921,14 +1998,19 @@ const __exports = {
   checkSpelling,
   closeLevelUp,
   deleteCustomWord,
+  exitTyper,
   finishFlashcard,
   flipCard,
   goHome,
   handleSpellKey,
+  handleTyperInput,
+  handleTyperKey,
   nextCard,
   nextQuestion,
+  pauseTyper,
   prevCard,
   resetCustomWords,
+  resumeTyper,
   selectCategory,
   speak,
   startCustomStudy,
