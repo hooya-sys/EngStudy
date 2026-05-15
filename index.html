@@ -612,14 +612,56 @@
     position: relative;
     width: 100%;
     height: min(60vh, 480px);
-    background: linear-gradient(180deg, #2D1B69 0%, #4A2C8F 50%, #7B2CBF 100%);
+    background: linear-gradient(180deg, #0B0633 0%, #2D1B69 45%, #4A2C8F 80%, #7B2CBF 100%);
     border: 3px solid var(--navy);
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 4px 0 var(--navy);
   }
+  /* 별 레이어 (은은한 반짝임) */
+  .typer-field::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1.6px 1.6px at 8% 12%, rgba(255,255,255,0.95), transparent 65%),
+      radial-gradient(1.2px 1.2px at 22% 38%, rgba(255,255,255,0.8), transparent 65%),
+      radial-gradient(1.4px 1.4px at 37% 8%, rgba(255,255,255,0.85), transparent 65%),
+      radial-gradient(1px 1px at 48% 28%, rgba(255,255,255,0.7), transparent 65%),
+      radial-gradient(1.8px 1.8px at 62% 14%, rgba(255,240,200,0.9), transparent 65%),
+      radial-gradient(1.2px 1.2px at 78% 32%, rgba(255,255,255,0.8), transparent 65%),
+      radial-gradient(1.4px 1.4px at 91% 9%, rgba(255,255,255,0.85), transparent 65%),
+      radial-gradient(1px 1px at 15% 55%, rgba(255,255,255,0.7), transparent 65%),
+      radial-gradient(1.6px 1.6px at 31% 72%, rgba(200,220,255,0.85), transparent 65%),
+      radial-gradient(1.2px 1.2px at 55% 60%, rgba(255,255,255,0.75), transparent 65%),
+      radial-gradient(1.4px 1.4px at 70% 84%, rgba(255,255,255,0.8), transparent 65%),
+      radial-gradient(1px 1px at 85% 65%, rgba(255,220,220,0.8), transparent 65%),
+      radial-gradient(1.6px 1.6px at 6% 88%, rgba(255,255,255,0.85), transparent 65%),
+      radial-gradient(1.2px 1.2px at 42% 92%, rgba(255,255,255,0.75), transparent 65%),
+      radial-gradient(1.4px 1.4px at 95% 78%, rgba(200,255,240,0.85), transparent 65%);
+    animation: typer-twinkle 4.5s ease-in-out infinite;
+  }
+  /* 행성 글로우 레이어 */
+  .typer-field::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle at 86% 20%, rgba(255,182,193,0.22) 0%, rgba(255,182,193,0.06) 18%, transparent 32%),
+      radial-gradient(circle at 14% 76%, rgba(120,220,235,0.18) 0%, rgba(120,220,235,0.05) 20%, transparent 36%),
+      radial-gradient(circle at 60% 50%, rgba(255,224,140,0.10) 0%, transparent 22%);
+  }
+  @keyframes typer-twinkle {
+    0%, 100% { opacity: 0.75; }
+    50% { opacity: 1; }
+  }
   .typer-word {
     position: absolute;
+    z-index: 1;
     transform: translateX(-50%);
     font-family: 'Gowun Dodum', sans-serif;
     font-size: 22px;
