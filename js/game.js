@@ -1656,10 +1656,6 @@ function spawnWord() {
 function showHint(w) {
   if (!w.el || !w.el.parentNode) return;
   w.el.textContent = w.en;
-  speak(w.en);
-  setTimeout(() => {
-    if (w.el && w.el.parentNode) w.el.textContent = w.ko;
-  }, 1200);
 }
 
 function typerLoop(t) {
