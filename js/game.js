@@ -1605,6 +1605,76 @@ function startTyper() {
   };
   state.screen = 'typer';
   render();
+  // 다음 틱에 DOM 준비 후 루프 시작
+  requestAnimationFrame(t => {
+    const field = document.getElementById('typerField');
+    if (!field) return;
+    const rect = field.getBoundingClientRect();
+    state.gameState.fieldW = rect.width;
+    state.gameState.fieldH = rect.height;
+    state.gameState.lastFrameT = t;
+    state.gameState.lastSpawnAt = t - LEVELS[0].spawnMs; // 첫 단어 즉시 스폰
+    state.gameState.rafId = requestAnimationFrame(typerLoop);
+    const input = document.getElementById('typerInput');
+    if (input) input.focus();
+  });
+}
+
+function spawnWord() {
+  const gs = state.gameState;
+  if (!gs || gs.over) return;
+  if (gs.poolIdx >= gs.pool.length) {
+    gs.pool = shuffle(gs.pool);
+    gs.poolIdx = 0;
+  }
+  const activeEns = new Set(gs.words.map(w => w.en));
+  let pick = null;
+  for (let i = 0; i < gs.pool.length; i++) {
+    const candidate = gs.pool[(gs.poolIdx + i) % gs.pool.length];
+    if (!activeEns.has(candidate.en)) {
+      pick = candidate;
+      gs.poolIdx = (gs.poolIdx + i + 1) % gs.pool.length;
+      break;
+    }
+  }
+  if (!pick) return; // 모든 풀이 활성중이면 다음 프레임 시도
+  const field = document.getElementById('typerField');
+  if (!field) return;
+  const id = ++gs.nextId;
+  const x = 10 + Math.random() * 80; // 10%~90%
+  const el = document.createElement('div');
+  el.className = 'typer-word';
+  el.dataset.id = String(id);
+  el.style.left = x + '%';
+  el.style.top = '0px';
+  el.textContent = pick.ko;
+  field.appendChild(el);
+  gs.words.push({ id, en: pick.en, ko: pick.ko, x, y: 0, el });
+}
+
+function typerLoop(t) {
+  const gs = state.gameState;
+  if (!gs || gs.over || gs.paused) return;
+  if (!gs.lastFrameT) gs.lastFrameT = t;
+  const dt = (t - gs.lastFrameT) / 1000;
+  gs.lastFrameT = t;
+  const cfg = LEVELS[Math.min(gs.level, LEVELS.length) - 1];
+
+  // 스폰
+  if (t - gs.lastSpawnAt > cfg.spawnMs && gs.words.length < cfg.maxConcurrent) {
+    spawnWord();
+    gs.lastSpawnAt = t;
+  }
+
+  // 이동
+  const limit = gs.fieldH - WORD_HEIGHT;
+  for (const w of gs.words) {
+    w.y += cfg.speed * dt;
+    if (w.y > limit) w.y = limit; // 바닥에 잠시 정지 (다음 태스크에서 게임오버로 대체)
+    w.el.style.top = w.y + 'px';
+  }
+
+  gs.rafId = requestAnimationFrame(typerLoop);
 }
 
 function renderTyper() {
@@ -1865,6 +1935,11 @@ function backToMode() {
 // ==========================================================
 function render() {
   const app = document.getElementById('app');
+  // typer 루프 정리: 다음 화면이 typer가 아니면 RAF 취소
+  if (state.gameState && state.gameState.mode === 'typer' && state.screen !== 'typer') {
+    if (state.gameState.rafId) cancelAnimationFrame(state.gameState.rafId);
+    state.gameState.over = true;
+  }
   let html = '';
   switch (state.screen) {
     case 'welcome': html = renderWelcome(); break;
