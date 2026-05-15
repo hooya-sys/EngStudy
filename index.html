@@ -600,6 +600,109 @@
   .spell-input.correct { background: #E8F5E9; border-color: var(--success); }
   .spell-input.wrong { background: #FFEBEE; border-color: var(--danger); animation: shake 0.5s; }
 
+  /* ========== TYPER (타자 우주) ========== */
+  .typer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .typer-field {
+    position: relative;
+    width: 100%;
+    height: min(60vh, 480px);
+    background: linear-gradient(180deg, #2D1B69 0%, #4A2C8F 50%, #7B2CBF 100%);
+    border: 3px solid var(--navy);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 0 var(--navy);
+  }
+  .typer-word {
+    position: absolute;
+    transform: translateX(-50%);
+    font-family: 'Gowun Dodum', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    padding: 6px 14px;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+  }
+  .typer-word.target {
+    background: #FFE066;
+    color: var(--navy);
+    border-color: var(--yellow);
+    box-shadow: 0 0 12px rgba(255, 224, 102, 0.8);
+    text-shadow: none;
+  }
+  .typer-word.dying {
+    animation: typer-die 0.2s ease-out forwards;
+  }
+  .typer-word.shake {
+    animation: typer-shake 0.4s;
+    background: var(--danger);
+    border-color: #fff;
+  }
+  @keyframes typer-die {
+    to { transform: translateX(-50%) scale(1.4); opacity: 0; }
+  }
+  @keyframes typer-shake {
+    0%, 100% { transform: translateX(-50%); }
+    25% { transform: translateX(calc(-50% + 6px)); }
+    75% { transform: translateX(calc(-50% - 6px)); }
+  }
+  .typer-input {
+    width: 100%;
+    margin-top: 12px;
+    padding: 14px 18px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    text-align: center;
+    border: 3px solid var(--navy);
+    border-radius: 12px;
+    background: white;
+    color: var(--navy);
+    box-shadow: 0 3px 0 var(--navy);
+    outline: none;
+  }
+  .typer-input:focus {
+    border-color: #7B2CBF;
+    box-shadow: 0 3px 0 #7B2CBF;
+  }
+  .typer-input:disabled {
+    background: #eee;
+    color: #999;
+  }
+  .typer-pause-overlay,
+  .typer-level-banner {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    z-index: 5;
+  }
+  .typer-pause-overlay.show,
+  .typer-level-banner.show {
+    display: flex;
+  }
+  .typer-pause-overlay .title { font-size: 36px; }
+  .typer-level-banner .title { font-size: 48px; text-shadow: 0 4px 12px rgba(123, 44, 191, 0.9); }
+
   /* FEEDBACK */
   .feedback {
     text-align: center;
