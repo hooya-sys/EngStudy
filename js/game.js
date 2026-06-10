@@ -1019,6 +1019,7 @@ function renderHome() {
     return sum + (state.mastered[k] || []).filter(en => existing.has(en)).length;
   }, 0);
   const totalPct = totalWords > 0 ? Math.round(totalMastered / totalWords * 100) : 0;
+  const dueCount = getDueWords().length;
 
   return `
     ${renderHeader()}
@@ -1033,6 +1034,16 @@ function renderHome() {
         </div>
         <div style="font-family: 'Fredoka'; font-size: 28px; font-weight: 700; color: var(--primary);">${totalPct}%</div>
       </div>
+
+      ${dueCount > 0 ? `
+        <div onclick="startReview()" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB); padding: 14px 18px; border-radius: 14px; border: 3px solid var(--navy); display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; cursor: pointer;">
+          <div>
+            <div style="font-family: 'Fredoka'; font-weight: 600; font-size: 16px; color: var(--navy);">🔔 오늘의 복습</div>
+            <div style="font-family: 'Gowun Dodum'; font-size: 13px; color: var(--navy-soft);">복습할 단어 ${dueCount}개! 스펠링으로 도전해보자</div>
+          </div>
+          <div style="font-family: 'Fredoka'; font-size: 22px; font-weight: 700; color: var(--primary);">GO →</div>
+        </div>
+      ` : ''}
 
       <div class="categories">
         ${CATEGORIES.map(key => {
@@ -1596,7 +1607,7 @@ function renderSpelling() {
     ${renderHeader()}
     <div class="card">
       <div class="game-header">
-        <button class="btn btn-ghost btn-sm" onclick="backToMode()">← 나가기</button>
+        <button class="btn btn-ghost btn-sm" onclick="${gs.isReview ? 'goHome()' : 'backToMode()'}">← 나가기</button>
         <div class="progress-pill">${gs.isRetry ? '🔁 다시 도전!' : '✍️'} ${gs.idx + 1} / ${gs.words.length} · ✅ ${gs.correct}</div>
       </div>
 
@@ -2144,6 +2155,47 @@ function pickSpellingWords(catKey) {
   return shuffle(ordered.slice(0, Math.min(QUESTIONS_PER_ROUND, ordered.length)));
 }
 
+// 복습 기한이 도래한 단어를 전 카테고리에서 수집 (오래된 순).
+// 랜덤 카테고리 제외, 삭제된 커스텀 단어 등 고아 stats는 무시.
+function getDueWords() {
+  const now = Date.now();
+  const out = [];
+  for (const key of Object.keys(state.wordStats)) {
+    const s = state.wordStats[key];
+    if (!s || s.dueAt > now) continue;
+    const sep = key.indexOf(':');
+    if (sep < 0) continue;
+    const catKey = key.slice(0, sep);
+    const en = key.slice(sep + 1);
+    const cat = VOCAB[catKey];
+    if (!cat || cat.isRandom) continue;
+    const w = cat.words.find(x => x.en === en);
+    if (w) out.push({ en: w.en, ko: w.ko, _cat: catKey, _dueAt: s.dueAt });
+  }
+  return out.sort((a, b) => a._dueAt - b._dueAt);
+}
+
+// 홈의 "오늘의 복습" 카드 → 카테고리 혼합 스펠링 라운드
+function startReview() {
+  const due = getDueWords();
+  if (!due.length) return;
+  state.currentCategory = null;
+  state.currentMode = 'spelling';
+  playSound('gameStart');
+  state.gameState = {
+    mode: 'spelling',
+    words: due.slice(0, QUESTIONS_PER_ROUND),
+    idx: 0,
+    correct: 0,
+    answered: false,
+    selectedIdx: null,
+    wrongWords: [],
+    isReview: true
+  };
+  state.screen = 'spelling';
+  render();
+}
+
 // ==========================================================
 // MASTERED TRACKING
 // ==========================================================
@@ -2253,7 +2305,7 @@ function renderResult() {
       ` : ''}
 
       <div class="controls-row" style="justify-content: center;">
-        <button class="btn btn-accent" onclick="backToMode()">🔁 한번 더</button>
+        ${gs.isReview ? '' : `<button class="btn btn-accent" onclick="backToMode()">🔁 한번 더</button>`}
         <button class="btn btn-primary" onclick="goHome()">🏠 처음으로</button>
       </div>
     </div>
@@ -2520,6 +2572,7 @@ const __exports = {
   startCustomStudy,
   startGame,
   startMode,
+  startReview,
   startTyper,
   toggleSound,
   toggleZoomMenu,
