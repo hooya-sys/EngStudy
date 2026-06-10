@@ -1554,6 +1554,15 @@ function renderSpelling() {
     c === ' ' ? '<div class="spell-slot space"></div>' : `<div class="spell-slot">?</div>`
   ).join('');
 
+  // 오답 시: 정답 글자 슬롯을 펼치고, 입력과 같은 위치가 일치하면 초록·다르면 빨강 (단순 위치 비교)
+  const diffSlots = word.en.split('').map((c, i) => {
+    if (c === ' ') return '<div class="spell-slot space"></div>';
+    const ok = (gs.lastInput || '')[i] === c.toLowerCase();
+    return `<div class="spell-slot ${ok ? 'diff-ok' : 'diff-bad'}">${c}</div>`;
+  }).join('');
+
+  const nextLabel = gs.idx === gs.words.length - 1 ? '결과 보기 🏆' : '다음 문제 →';
+
   return `
     ${renderHeader()}
     <div class="card">
@@ -1564,37 +1573,52 @@ function renderSpelling() {
 
       <div class="spell-display">
         <div class="spell-mean">${word.ko}</div>
-        <div class="spell-hint">${slots}</div>
+        <div class="spell-hint">${gs.answered && !gs.isCorrect ? diffSlots : slots}</div>
         <button class="speak-btn" onclick="speak('${word.en}')" style="margin: 12px auto 0;">🔊</button>
       </div>
 
+      ${gs.answered ? '' : `
       <input type="text"
-             class="spell-input ${gs.answered ? (gs.isCorrect ? 'correct' : 'wrong') : ''}"
+             class="spell-input"
              id="spellInput"
              placeholder="${word.en.length}글자로 써보세요"
-             ${gs.answered ? 'disabled' : ''}
              autocomplete="off"
              spellcheck="false"
              onkeydown="handleSpellKey(event)">
+      `}
 
-      ${gs.answered ? `
-        <div class="feedback ${gs.isCorrect ? 'correct' : 'wrong'}">
-          ${gs.isCorrect
-            ? `🎉 완벽해! <b>${word.en}</b> = ${word.ko}`
-            : `😢 정답은 <b>${word.en}</b>이었어!`}
-        </div>
+      ${gs.answered ? (gs.isCorrect ? `
+        <div class="feedback correct">🎉 완벽해! <b>${word.en}</b> = ${word.ko}</div>
         <div style="text-align:center;">
-          <button class="btn btn-primary" onclick="nextQuestion()">
-            ${gs.idx === gs.words.length - 1 ? '결과 보기 🏆' : '다음 문제 →'}
-          </button>
+          <button class="btn btn-primary" onclick="nextQuestion()">${nextLabel}</button>
         </div>
       ` : `
+        <div class="feedback wrong">😢 내 답: <b>${gs.lastInput || '(빈 칸)'}</b> — 빨간 글자를 잘 봐!</div>
+        ${gs.copyDone ? `
+          <div class="feedback correct">👍 잘 따라 썼어! 이제 다음 문제로!</div>
+          <div style="text-align:center;">
+            <button class="btn btn-primary" onclick="nextQuestion()">${nextLabel}</button>
+          </div>
+        ` : `
+          <div class="help-text" style="margin-top: 10px;">✏️ 정답을 보고 한 번 따라 써보자!</div>
+          <input type="text"
+                 class="spell-input"
+                 id="copyInput"
+                 placeholder="${word.en}"
+                 autocomplete="off"
+                 spellcheck="false"
+                 onkeydown="handleCopyKey(event)">
+          <div style="text-align:center; margin-top: 12px;">
+            <button class="btn btn-primary btn-sm" onclick="checkSpellCopy()">따라 쓰기 확인 ✓</button>
+          </div>
+        `}
+      `) : `
         <div class="controls-row" style="justify-content: center; margin-top: 12px;">
           <button class="btn btn-accent btn-sm" onclick="speak('${word.en}')">🔊 다시 듣기</button>
           <button class="btn btn-primary btn-sm" onclick="checkSpelling()">확인 ✓</button>
         </div>
+        <div class="help-text">💡 모르겠으면 소리 버튼을 눌러 들어봐!</div>
       `}
-      <div class="help-text">💡 모르겠으면 소리 버튼을 눌러 들어봐!</div>
     </div>
   `;
 }
@@ -1607,6 +1631,8 @@ function checkSpelling() {
   const correct = input === word.en.toLowerCase();
   gs.answered = true;
   gs.isCorrect = correct;
+  gs.lastInput = input;
+  gs.copyDone = false;
   const catKey = word._cat || state.currentCategory;
   if (correct) {
     gs.correct++;
@@ -1628,6 +1654,34 @@ function handleSpellKey(event) {
     return;
   }
   // 타이핑 사운드 - 글자/숫자/스페이스만
+  if (event.key.length === 1 || event.key === 'Backspace') {
+    playSound('type');
+  }
+}
+
+// 오답 교정: 정답을 보고 따라 써야 다음으로 진행. XP·박스에 영향 없음.
+function checkSpellCopy() {
+  const gs = state.gameState;
+  if (!gs.answered || gs.isCorrect || gs.copyDone) return;
+  const word = gs.words[gs.idx];
+  const el = document.getElementById('copyInput');
+  const val = el.value.trim().toLowerCase();
+  if (val === word.en.toLowerCase()) {
+    gs.copyDone = true;
+    playSound('correct');
+    render();
+  } else {
+    playSound('wrong');
+    el.classList.add('wrong');
+    setTimeout(() => el.classList.remove('wrong'), 500);
+  }
+}
+
+function handleCopyKey(event) {
+  if (event.key === 'Enter') {
+    checkSpellCopy();
+    return;
+  }
   if (event.key.length === 1 || event.key === 'Backspace') {
     playSound('type');
   }
@@ -2299,6 +2353,9 @@ function render() {
   const spellInput = document.getElementById('spellInput');
   if (spellInput && !state.gameState?.answered) spellInput.focus();
 
+  const copyInput = document.getElementById('copyInput');
+  if (copyInput) copyInput.focus();
+
   const nameInput = document.getElementById('nameInput');
   if (nameInput) {
     nameInput.focus();
@@ -2403,6 +2460,7 @@ const __exports = {
   backToCustomManage,
   backToMode,
   checkSpelling,
+  checkSpellCopy,
   closeLevelUp,
   deleteCustomWord,
   exitTyper,
@@ -2410,6 +2468,7 @@ const __exports = {
   finishTyper,
   flipCard,
   goHome,
+  handleCopyKey,
   handleSpellKey,
   handleTyperInput,
   handleTyperKey,
