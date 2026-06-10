@@ -499,12 +499,6 @@
     grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
-  @media (max-width: 500px) {
-    .quiz-options { grid-template-columns: 1fr; }
-    .quiz-word { font-size: 36px; }
-    .quiz-word-kr { font-size: 28px; }
-    .flash-word { font-size: 40px; }
-  }
   .quiz-option {
     background: white;
     border: 3px solid var(--navy);
@@ -959,10 +953,6 @@
   }
   .custom-input:focus { box-shadow: 0 3px 0 var(--navy); }
   .custom-form .btn { padding: 10px 14px; font-size: 14px; }
-  @media (max-width: 520px) {
-    .custom-form { grid-template-columns: 1fr 1fr; }
-    .custom-form .btn { grid-column: 1 / -1; }
-  }
 
   .custom-list {
     display: flex;
@@ -1058,6 +1048,60 @@
   .zoom-fab-btn:active:not([disabled]) { transform: translateY(0); }
   .zoom-fab-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
   .zoom-fab-trigger.open { background: var(--primary); color: white; }
+
+  /* ========== MOBILE (≤600px) ========== */
+  @media (max-width: 600px) {
+    .app { padding: 12px; }
+    .card { padding: 20px 14px; }
+
+    /* 헤더: 1행 아바타+이름+아이콘 버튼, 2행 XP바 전체 폭 */
+    .header { padding: 10px 12px; gap: 8px 10px; margin-bottom: 14px; }
+    .avatar { width: 40px; height: 40px; font-size: 22px; }
+    .user-info { min-width: 0; }
+    .user-name { font-size: 16px; }
+    .user-level { font-size: 12px; }
+    .xp-container { order: 10; flex-basis: 100%; min-width: 0; }
+
+    /* 버튼 스케일 — 선언 순서 유지 필수 */
+    .btn { font-size: 15px; padding: 12px 18px; }
+    .btn-sm { font-size: 14px; padding: 10px 16px; }
+    .btn-lg { font-size: 17px; padding: 14px 22px; }
+    .btn-icon { width: 38px; height: 38px; padding: 0; font-size: 16px; }
+
+    /* 타이포·여백 */
+    .screen-title { font-size: 22px; }
+    .screen-sub { font-size: 14px; }
+    .welcome h1 { font-size: 32px; }
+    .progress-pill { font-size: 13px; }
+    .mode-card { padding: 14px; }
+    .mode-icon { width: 42px; height: 42px; font-size: 22px; }
+
+    /* 퀴즈 (기존 500px 쿼리 통합) */
+    .quiz-options { grid-template-columns: 1fr; }
+    .quiz-word { font-size: 36px; }
+    .quiz-word-kr { font-size: 28px; }
+    .flash-word { font-size: 40px; }
+
+    /* 스펠링 */
+    .spell-mean { font-size: 28px; }
+    .spell-hint { gap: 3px; }
+    .spell-slot { width: 24px; height: 32px; font-size: 17px; }
+    .spell-input { font-size: 20px; padding: 12px; }
+
+    /* 결과 */
+    .result-hero { padding: 16px 12px; }
+    .result-emoji { font-size: 64px; }
+    .result-title { font-size: 28px; }
+    .stat-num { font-size: 22px; }
+    .stat-box { padding: 10px 6px; }
+
+    /* 커스텀 단어 폼 (기존 520px 쿼리 통합) */
+    .custom-form { grid-template-columns: 1fr 1fr; }
+    .custom-form .btn { grid-column: 1 / -1; }
+
+    /* 홈 배너 */
+    .home-banner { padding: 10px 12px; }
+  }
 </style>
 </head>
 <body>
