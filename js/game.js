@@ -1512,24 +1512,53 @@ function nextQuestion() {
   gs.selectedIdx = null;
   gs.options = null;
   if (gs.idx >= gs.words.length) {
-    finishQuiz();
+    if (gs.mode === 'spelling' && !gs.isRetry && gs.wrongWords && gs.wrongWords.length > 0) {
+      startRetryRound();
+    } else {
+      finishQuiz();
+    }
   } else {
     render();
     if (gs.mode === 'meaning') setTimeout(() => speak(gs.words[gs.idx].en), 300);
   }
 }
 
+// 스펠링 본 라운드 종료 후 오답만 1회 재출제. 재도전 정답 XP는 절반(5).
+function startRetryRound() {
+  const gs = state.gameState;
+  playSound('gameStart');
+  state.gameState = {
+    mode: 'spelling',
+    words: shuffle(gs.wrongWords),
+    idx: 0,
+    correct: 0,
+    answered: false,
+    selectedIdx: null,
+    wrongWords: [],
+    isRetry: true,
+    isReview: gs.isReview || false,
+    mainCorrect: gs.correct,
+    mainTotal: gs.words.length
+  };
+  render();
+}
+
 function finishQuiz() {
   const gs = state.gameState;
-  let xpGained = gs.correct * XP_CORRECT;
-  const isPerfect = gs.correct === gs.words.length;
+  const mainCorrect = gs.isRetry ? gs.mainCorrect : gs.correct;
+  const mainTotal = gs.isRetry ? gs.mainTotal : gs.words.length;
+  const retryCorrect = gs.isRetry ? gs.correct : 0;
+  let xpGained = mainCorrect * XP_CORRECT + retryCorrect * XP_RETRY_CORRECT;
+  const isPerfect = mainCorrect === mainTotal;
   if (isPerfect) xpGained += XP_BONUS_PERFECT;
   addXP(xpGained);
   updateStreak();
   state.gameState = {
     mode: gs.mode,
-    total: gs.words.length,
-    correct: gs.correct,
+    total: mainTotal,
+    correct: mainCorrect,
+    retryCorrect: retryCorrect,
+    isReview: gs.isReview || false,
     xpGained: xpGained,
     perfect: isPerfect
   };
@@ -1538,7 +1567,7 @@ function finishQuiz() {
   if (isPerfect) {
     setTimeout(() => playSound('perfect'), 200);
     setTimeout(confetti, 300);
-  } else if (gs.correct / gs.words.length >= 0.75) {
+  } else if (mainCorrect / mainTotal >= 0.75) {
     setTimeout(() => playSound('streak'), 200);
   }
 }
@@ -1568,7 +1597,7 @@ function renderSpelling() {
     <div class="card">
       <div class="game-header">
         <button class="btn btn-ghost btn-sm" onclick="backToMode()">← 나가기</button>
-        <div class="progress-pill">✍️ ${gs.idx + 1} / ${gs.words.length} · ✅ ${gs.correct}</div>
+        <div class="progress-pill">${gs.isRetry ? '🔁 다시 도전!' : '✍️'} ${gs.idx + 1} / ${gs.words.length} · ✅ ${gs.correct}</div>
       </div>
 
       <div class="spell-display">
@@ -1641,6 +1670,7 @@ function checkSpelling() {
     setTimeout(() => speak(word.en), 200);
     trackEvent('correct');
   } else {
+    if (gs.wrongWords) gs.wrongWords.push(word);
     playSound('wrong');
     recordAnswer(catKey, word.en, false);
     trackEvent('wrong');
@@ -2215,6 +2245,12 @@ function renderResult() {
           </div>
         `}
       </div>
+
+      ${gs.retryCorrect > 0 ? `
+        <div style="text-align:center; font-family: 'Gowun Dodum'; font-size: 14px; color: var(--navy-soft); margin-bottom: 12px;">
+          🔁 재도전으로 ${gs.retryCorrect}개 더 맞혔어! (+${gs.retryCorrect * XP_RETRY_CORRECT} XP 포함)
+        </div>
+      ` : ''}
 
       <div class="controls-row" style="justify-content: center;">
         <button class="btn btn-accent" onclick="backToMode()">🔁 한번 더</button>
