@@ -1343,14 +1343,17 @@ function prevCard() {
 // ==========================================================
 function startQuiz(mode) {
   const cat = VOCAB[state.currentCategory];
-  const words = shuffle(cat.words).slice(0, Math.min(QUESTIONS_PER_ROUND, cat.words.length));
+  const words = mode === 'spelling'
+    ? pickSpellingWords(state.currentCategory)
+    : shuffle(cat.words).slice(0, Math.min(QUESTIONS_PER_ROUND, cat.words.length));
   state.gameState = {
     mode: mode,
     words: words,
     idx: 0,
     correct: 0,
     answered: false,
-    selectedIdx: null
+    selectedIdx: null,
+    wrongWords: []
   };
   state.screen = mode;
   render();
@@ -2035,6 +2038,26 @@ function recordAnswer(catKey, en, isCorrect, { promote = false } = {}) {
   s.lastSeen = now;
   state.wordStats[key] = s;
   saveState();
+}
+
+// 스펠링 출제 우선순위: 기한 도래(오래된 순) → 취약(박스1+오답이력) → 새 단어 → 나머지
+function pickSpellingWords(catKey) {
+  const cat = VOCAB[catKey];
+  if (cat.isRandom) {
+    return shuffle(cat.words).slice(0, Math.min(QUESTIONS_PER_ROUND, cat.words.length));
+  }
+  const now = Date.now();
+  const due = [], weak = [], fresh = [], rest = [];
+  for (const w of cat.words) {
+    const s = getWordStat(catKey, w.en);
+    if (!s) fresh.push(w);
+    else if (s.dueAt <= now) due.push({ w, s });
+    else if (s.box === 1 && s.wrong > 0) weak.push(w);
+    else rest.push(w);
+  }
+  due.sort((a, b) => a.s.dueAt - b.s.dueAt);
+  const ordered = [...due.map(d => d.w), ...shuffle(weak), ...shuffle(fresh), ...shuffle(rest)];
+  return shuffle(ordered.slice(0, Math.min(QUESTIONS_PER_ROUND, ordered.length)));
 }
 
 // ==========================================================
