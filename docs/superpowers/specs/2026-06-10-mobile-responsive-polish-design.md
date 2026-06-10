@@ -66,7 +66,7 @@
 | `.quiz-options` | 2열 | 1열 (〃) |
 | `.flash-word` | — | 40px (〃) |
 | `.spell-mean` | 38px | 28px |
-| `.spell-slot` | 32×40px, 22px | 26×34px, 18px |
+| `.spell-slot` | 32×40px, 22px | 24×32px, 17px (간격 6→3px — 11자 단어가 360px 콘텐츠 폭 302px 안에 들어가는 최대 크기) |
 | `.spell-input` | 24px/p16px | 20px/p12px |
 | `.result-title` | 36px | 28px |
 | `.result-emoji` | 100px | 64px |
