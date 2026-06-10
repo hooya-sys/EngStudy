@@ -1027,7 +1027,7 @@ function renderHome() {
       <div class="screen-title">🌟 주제를 골라봐!</div>
       <div class="screen-sub">원하는 주제를 선택하면 다양한 게임으로 단어를 공부할 수 있어요</div>
 
-      <div style="background: linear-gradient(135deg, #FFE5B4, var(--yellow)); padding: 14px 18px; border-radius: 14px; border: 3px solid var(--navy); display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <div class="home-banner" style="background: linear-gradient(135deg, #FFE5B4, var(--yellow)); border-radius: 14px; border: 3px solid var(--navy); display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <div>
           <div style="font-family: 'Fredoka'; font-weight: 600; font-size: 16px; color: var(--navy);">전체 진도</div>
           <div style="font-family: 'Gowun Dodum'; font-size: 13px; color: var(--navy-soft);">${totalMastered} / ${totalWords} 단어 마스터!</div>
@@ -1036,7 +1036,7 @@ function renderHome() {
       </div>
 
       ${dueCount > 0 ? `
-        <div onclick="startReview()" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB); padding: 14px 18px; border-radius: 14px; border: 3px solid var(--navy); display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; cursor: pointer;">
+        <div class="home-banner" onclick="startReview()" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB); border-radius: 14px; border: 3px solid var(--navy); display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; cursor: pointer;">
           <div>
             <div style="font-family: 'Fredoka'; font-weight: 600; font-size: 16px; color: var(--navy);">🔔 오늘의 복습</div>
             <div style="font-family: 'Gowun Dodum'; font-size: 13px; color: var(--navy-soft);">복습할 단어 ${dueCount}개! 스펠링으로 도전해보자</div>
