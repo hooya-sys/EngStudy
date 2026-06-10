@@ -27,6 +27,7 @@ export async function loadState() {
     streak: d.streak || 0,
     lastPlayed: d.lastPlayed?.toMillis ? d.lastPlayed.toMillis() : (d.lastPlayed || null),
     mastered: d.mastered || {},
+    wordStats: d.wordStats || {},
     soundEnabled: typeof d.soundEnabled === 'boolean' ? d.soundEnabled : true
   };
 }
@@ -40,6 +41,7 @@ export async function saveState(stateObj) {
     streak: stateObj.streak,
     lastPlayed: stateObj.lastPlayed ? new Date(stateObj.lastPlayed) : null,
     mastered: stateObj.mastered || {},
+    wordStats: stateObj.wordStats || {},
     soundEnabled: stateObj.soundEnabled
   };
   // displayName은 게임 진행으로는 변경되지 않음 — saveState에선 다루지 않음 (profile.js에서 처리)

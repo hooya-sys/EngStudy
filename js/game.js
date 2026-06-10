@@ -479,6 +479,12 @@ const XP_PER_LEVEL = 100;
 const XP_CORRECT = 10;
 const XP_BONUS_PERFECT = 30;
 const QUESTIONS_PER_ROUND = 8;
+// 라이트너 박스: 인덱스 = 박스 번호(1~5), 값 = 다음 복습까지 일수. 박스1 = 즉시.
+const BOX_INTERVALS_DAYS = [0, 0, 1, 3, 7, 14];
+const MAX_BOX = 5;
+const MASTER_BOX = 4;
+const XP_RETRY_CORRECT = 5;
+const DAY_MS = 86400000;
 const ZOOM_MIN = 0.7;
 const ZOOM_MAX = 1.5;
 const ZOOM_STEP = 0.1;
@@ -519,6 +525,7 @@ let state = {
   streak: 0,
   lastPlayed: null,
   mastered: {}, // { categoryKey: [wordIndex, wordIndex...] }
+  wordStats: {}, // { "catKey:wordEn": { box, dueAt, correct, wrong, lastSeen } }
   bestTyper: {},
   screen: 'welcome',
   currentCategory: null,
@@ -531,6 +538,7 @@ async function loadState() {
   if (loaded) {
     state = { ...state, ...loaded };
     if (!state.bestTyper || typeof state.bestTyper !== 'object') state.bestTyper = {};
+    if (!state.wordStats || typeof state.wordStats !== 'object') state.wordStats = {};
     if (typeof loaded.soundEnabled === 'boolean') soundEnabled = loaded.soundEnabled;
     if (typeof loaded.zoomLevel === 'number') zoomLevel = loaded.zoomLevel;
     if (state.lastPlayed) {
@@ -552,6 +560,7 @@ async function saveState() {
     streak: state.streak,
     lastPlayed: state.lastPlayed,
     mastered: state.mastered,
+    wordStats: state.wordStats,
     bestTyper: state.bestTyper,
     soundEnabled: soundEnabled,
     zoomLevel: zoomLevel
@@ -1990,6 +1999,41 @@ function finishTyper() {
   state.screen = 'result';
   render();
   setTimeout(() => playSound('streak'), 200);
+}
+
+// ==========================================================
+// WORD STATS (라이트너 박스 간격 반복)
+// ==========================================================
+function statKey(catKey, en) {
+  return `${catKey}:${en}`;
+}
+
+function getWordStat(catKey, en) {
+  return state.wordStats[statKey(catKey, en)] || null;
+}
+
+// 정오답 기록. promote: true면 정답 시 박스 승급(스펠링 모드 전용).
+// 박스 4 도달 시 마스터 등록. 랜덤 카테고리는 갱신하지 않음.
+function recordAnswer(catKey, en, isCorrect, { promote = false } = {}) {
+  if (!catKey || VOCAB[catKey]?.isRandom) return;
+  const key = statKey(catKey, en);
+  const now = Date.now();
+  const s = state.wordStats[key] || { box: 1, dueAt: now, correct: 0, wrong: 0, lastSeen: 0 };
+  if (isCorrect) {
+    s.correct++;
+    if (promote) {
+      s.box = Math.min(MAX_BOX, s.box + 1);
+      s.dueAt = now + BOX_INTERVALS_DAYS[s.box] * DAY_MS;
+      if (s.box >= MASTER_BOX) markMastered(catKey, en);
+    }
+  } else {
+    s.wrong++;
+    s.box = 1;
+    s.dueAt = now;
+  }
+  s.lastSeen = now;
+  state.wordStats[key] = s;
+  saveState();
 }
 
 // ==========================================================
