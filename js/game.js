@@ -1419,12 +1419,12 @@ function answerMeaning(i) {
   if (isCorrect) {
     gs.correct++;
     playSound('correct');
-    markMastered(state.currentCategory, word.en);
     trackEvent('correct');
   } else {
     playSound('wrong');
     trackEvent('wrong');
   }
+  recordAnswer(state.currentCategory, word.en, isCorrect);
   render();
 }
 
@@ -1492,12 +1492,12 @@ function answerWord(i) {
   if (isCorrect) {
     gs.correct++;
     playSound('correct');
-    markMastered(state.currentCategory, word.en);
     trackEvent('correct');
   } else {
     playSound('wrong');
     trackEvent('wrong');
   }
+  recordAnswer(state.currentCategory, word.en, isCorrect);
   if (isCorrect) setTimeout(() => speak(word.en), 200);
   render();
 }
@@ -1604,14 +1604,16 @@ function checkSpelling() {
   const correct = input === word.en.toLowerCase();
   gs.answered = true;
   gs.isCorrect = correct;
+  const catKey = word._cat || state.currentCategory;
   if (correct) {
     gs.correct++;
     playSound('correct');
-    markMastered(state.currentCategory, word.en);
+    recordAnswer(catKey, word.en, true, { promote: true });
     setTimeout(() => speak(word.en), 200);
     trackEvent('correct');
   } else {
     playSound('wrong');
+    recordAnswer(catKey, word.en, false);
     trackEvent('wrong');
   }
   render();
@@ -1868,7 +1870,6 @@ function killTyperWord(w) {
   gs.killsThisLevel++;
   playSound('correct');
   trackEvent('correct');
-  markMastered(state.currentCategory, w.en);
   const kEl = document.getElementById('typerKills');
   if (kEl) kEl.textContent = String(gs.kills);
   if (gs.killsThisLevel >= TYPER_KILLS_PER_LEVEL) typerLevelUp();
